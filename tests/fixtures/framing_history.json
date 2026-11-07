@@ -1,0 +1,9 @@
+{
+  "name": "framing-evidence-v1",
+  "seed": 73,
+  "start_time": "2026-09-01T00:00:00Z",
+  "days": 1,
+  "vehicles_per_shift": 8,
+  "fault_focus": "Framing",
+  "expectation": "Framing has the longest authored fault duration. This is an evidence fixture, not a confirmed line constraint; confirm sensitivity using Stage 3."
+}
