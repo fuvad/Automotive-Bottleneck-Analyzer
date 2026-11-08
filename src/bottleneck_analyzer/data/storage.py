@@ -1,5 +1,6 @@
 """Atomic, append-only dataset loading using existing SQLAlchemy infrastructure."""
 
+from collections.abc import Callable
 from typing import Any
 
 from sqlalchemy import func, insert, select, text
@@ -11,13 +12,18 @@ from bottleneck_analyzer.db.base import Base
 from bottleneck_analyzer.db.models.production import Dataset
 
 
-def load_history(connection: Connection, history: EventHistory) -> dict[str, Any]:
+def load_history(
+    connection: Connection,
+    history: EventHistory,
+    *,
+    validator: Callable[[EventHistory], dict[str, Any]] = validate_history,
+) -> dict[str, Any]:
     """Validate and insert within the caller's transaction, or verify an exact replay.
 
     The caller must use engine.begin(). No records are deleted or overwritten.
     An advisory lock serializes concurrent attempts for the same dataset identity.
     """
-    report = validate_history(history)
+    report = validator(history)
     fingerprint = history.fingerprint()
     connection.execute(
         text("SELECT pg_advisory_xact_lock(hashtextextended(:name, 0))"),
@@ -48,7 +54,7 @@ def load_history(connection: Connection, history: EventHistory) -> dict[str, Any
             "end_time": history.config.end_time,
             "config": history.config.model_dump(mode="json"),
             "content_hash": fingerprint,
-            "provenance": "authored_fixture",
+            "provenance": history.provenance,
         },
     )
     for table in Base.metadata.sorted_tables:

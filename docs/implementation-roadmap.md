@@ -7,9 +7,9 @@ Status values used throughout this roadmap:
 - **Completed** — implementation and the relevant checks have been executed successfully.
 - **Blocked** — progress is stopped by a concrete dependency, environment issue, or unresolved requirement; the blocker is recorded.
 
-Stage 1 is **Completed**. Stage 2 is **Implementation Complete; Final Acceptance
-Pending Stage 3 Output**. Stage 3 is **Not Started — ready to begin**; Stages 4–8
-remain **Not Started**.
+Stages 1–3 are **Completed**, including Stage 2 final acceptance verified through
+Stage 3 output. Stage 4 is **Not Started — ready to begin**; Stages 5–8 remain
+**Not Started**.
 
 Implementation completion and final acceptance are tracked separately when an
 acceptance criterion needs a later stage's output. A later stage depends on the
@@ -65,15 +65,15 @@ Keep the application as a modular monolith. Use the existing package areas under
 
 ### Stage 2 — Domain models, database schema, and synthetic data generation
 
-**Status:** Implementation Complete; Final Acceptance Pending Stage 3 Output.
+**Status:** Completed — implementation and final acceptance verified.
 
 Implementation detail and reproduction commands: [Stage 2 data model](design/stage-2-data-model.md).
 Stage 2's domain contracts, schema, migration, authored-data pipeline, and their
 tests are implemented and verified. They satisfy Stage 3's entry dependency.
-Stage 3 will use those components to generate and load a new simulation-derived
-dataset. Verification of that dataset and the Framing constraint case will close
-Stage 2's remaining cross-stage acceptance criteria. These criteria do not block
-Stage 3 from starting and remain required for final acceptance.
+Stage 3 used those components to generate, validate, load and replay
+`sim-30day-baseline-v1`, and independently verified the Framing constraint case in
+`sim-framing-validation-v1`. The authored fixture was checked unchanged. These
+results close Stage 2's remaining cross-stage acceptance criteria.
 
 **Objective:** Create the common internal model, PostgreSQL schema, provenance relationships, and deterministic 30-day synthetic source history that all later analysis uses.
 
@@ -109,7 +109,17 @@ Stage 3 from starting and remain required for final acceptance.
 
 ### Stage 3 — Seven-station SimPy discrete-event simulation
 
-**Status:** Not started
+**Status:** Completed — simulation, experiments, dataset persistence/replay and final verification passed.
+
+The 20-pair 30-day experiment passed the illustrative baseline target: mean
+46.255889 JPH, scenario mean 49.609000, paired gain 3.353111 JPH (95% interval
+3.275210–3.431012). Hemming remained the candidate after intervention. The
+Framing stress case was independently verified and saved. A PostgreSQL disk-space
+incident interrupted the first load. After the user freed space and restarted the
+service, the full load/replay and authored-fixture value verification passed.
+The final suite passed **64 tests**; Alembic reports head `0002` with no schema
+differences. See the
+[Stage 3 technical document](design/stage-3-simulation.md) for evidence and commands.
 
 **Objective:** Implement a real seven-station flow model that produces the shared synthetic event history and supports reproducible baseline and two intervention methods.
 
@@ -363,9 +373,9 @@ Stage 8 therefore spans all Day 2 blocks, while Stages 1–7 deliver the Day 1 v
 
 Update each stage’s `Status` after its work and checks are complete. A stage is **Completed** only when its definition of done and measurable criteria below are satisfied:
 
-For Stage 2, record **Implementation Complete; Final Acceptance Pending Stage 3
-Output** until the remaining evidence is verified. This preserves the full
-acceptance criteria while allowing Stage 3 to consume the completed components.
+Stage 2 was tracked as **Implementation Complete; Final Acceptance Pending Stage 3
+Output** until the cross-stage evidence was verified. That acceptance is now
+closed. This distinction preserved the criteria without blocking Stage 3 entry.
 
 | Stage | Measurable acceptance criteria |
 | --- | --- |
@@ -424,13 +434,13 @@ When blocked, record the specific missing dependency, attempted checks, impact o
 
 ### Seven-station simulation
 
-- [ ] Underbody Welding, Framing, Roof Welding, Closures Fitting, Hemming, Sealing, and Final Inspection are modeled sequentially.
-- [ ] SimPy includes SUV/sedan processing, finite buffers, WIP, faults, repairs, shifts, processing, blocked, starved, and faulted states, queue occupancy, and completions.
-- [ ] Operating/calendar fault timing, shift-crossing repairs, interruption/resumption, startup/WIP treatment, and equivalent baseline/scenario conditions are defined.
-- [ ] Baseline is calibrated toward approximately 46 JPH, initially 45–47 JPH, while preserving the distinct 60 JPH design reference and stating model limits.
-- [ ] Both intervention methods exist: repair duration ×0.70 and failure rate ×0.70; the primary demonstration uses repair-duration reduction.
-- [ ] Evaluation uses paired baseline/scenario runs, initially 20 replications where practical, separate seeds, mean gain, variation/uncertainty interval, realized downtime change, and possible new constraint.
-- [ ] No station gains are summed and no bottleneck movement or gain is predetermined.
+- [x] Underbody Welding, Framing, Roof Welding, Closures Fitting, Hemming, Sealing, and Final Inspection are modeled sequentially.
+- [x] SimPy includes SUV/sedan processing, finite buffers, WIP, faults, repairs, shifts, processing, blocked, starved, and faulted states, queue occupancy, and completions.
+- [x] Operating/calendar fault timing, shift-crossing repairs, interruption/resumption, startup/WIP treatment, and equivalent baseline/scenario conditions are defined.
+- [x] Baseline is calibrated toward approximately 46 JPH, initially 45–47 JPH, while preserving the distinct 60 JPH design reference and stating model limits.
+- [x] Both intervention methods exist: repair duration ×0.70 and failure rate ×0.70; the primary demonstration uses repair-duration reduction.
+- [x] Evaluation uses paired baseline/scenario runs, initially 20 replications where practical, separate seeds, mean gain, variation/uncertainty interval, realized downtime change, and possible new constraint.
+- [x] No station gains are summed and no bottleneck movement or gain is predetermined.
 
 ### Measurement, retrieval, and validation
 

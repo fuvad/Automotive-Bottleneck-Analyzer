@@ -9,7 +9,7 @@ import json
 import random
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
-from typing import Any
+from typing import Any, ClassVar, Protocol
 from uuid import NAMESPACE_URL, UUID, uuid5
 
 from bottleneck_analyzer.domain.manufacturing import STATION_NAMES, DatasetConfig
@@ -17,10 +17,25 @@ from bottleneck_analyzer.domain.manufacturing import STATION_NAMES, DatasetConfi
 type Row = dict[str, Any]
 
 
+class HistoryConfiguration(Protocol):
+    name: str
+    seed: int
+    days: int
+    start_time: datetime
+
+    @property
+    def end_time(self) -> datetime: ...
+
+    def model_dump(self, **kwargs) -> dict: ...
+
+    def model_dump_json(self) -> str: ...
+
+
 @dataclass
 class EventHistory:
-    config: DatasetConfig
+    config: HistoryConfiguration
     rows: dict[str, list[Row]] = field(default_factory=dict)
+    provenance: ClassVar[str] = "authored_fixture"
 
     @property
     def dataset_id(self) -> UUID:

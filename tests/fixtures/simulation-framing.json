@@ -1,0 +1,8 @@
+{
+  "description": "Independent stress case with slower synthetic Framing processing; the result must be measured by sensitivity.",
+  "processing_mean_seconds": 90,
+  "station": "Framing",
+  "expected_primary": "Framing",
+  "days": 3,
+  "sensitivity_seeds": [3001, 3002, 3003, 3004, 3005]
+}

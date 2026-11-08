@@ -86,7 +86,25 @@ The existing PostgreSQL health test uses read-only statements.
 
 Stage 1 foundation is verified. Stage 2 implementation is complete: domain/schema,
 migration, and authored-data generation/loading are available for Stage 3 to use.
-Stage 2 final acceptance awaits Stage 3's new simulation-derived dataset and
-verified constraint fixture. Stage 3 is ready to begin and remains Not Started.
+Stage 3 implements the seven-station SimPy line, finite buffers, faults/repairs,
+calendars, uncertainty, calibration, scenarios and source projections. Its
+30-day baseline and Framing validation datasets are generated and persisted.
+Replay and original-fixture preservation checks passed, as did the final 64-test
+suite. Stages 1–3 and Stage 2 final acceptance are complete; Stage 4 is ready and
+has not been started.
 See [implementation status](docs/implementation-status.md) for actual validation
 outcomes and the remaining acceptance evidence.
+
+## Simulation commands
+
+See [Stage 3 simulation](docs/design/stage-3-simulation.md) for assumptions,
+actual experiment results, module responsibilities and all reproduction commands.
+
+```powershell
+poetry run python -m bottleneck_analyzer.simulation.cli baseline --days 1
+poetry run python -m bottleneck_analyzer.simulation.cli replicate --days 3 --replications 5
+```
+
+Commands without `--config` use the initial synthetic assumptions. Use the saved
+calibrated configuration for the evaluated 46-JPH baseline. Simulation never runs
+on application startup. The authored `stage2-30day-v1` dataset is preserved.

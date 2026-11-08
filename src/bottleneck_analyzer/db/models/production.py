@@ -197,7 +197,8 @@ class FaultEvent(SourceRow, Base):
     __table_args__ = (
         CheckConstraint("end_time > start_time", name="ck_fault_period"),
         CheckConstraint(
-            "category IN ('robot_fault','quality_stop','material_shortage')",
+            "category IN ('robot_fault','quality_stop','material_shortage',"
+            "'mechanical_fault','electrical_fault','sensor_fault','other_equipment_fault')",
             name="ck_fault_category",
         ),
         Index("ix_fault_station_time", "station_id", "start_time"),

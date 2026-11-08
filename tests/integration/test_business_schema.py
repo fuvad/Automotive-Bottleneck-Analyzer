@@ -13,6 +13,7 @@ import pytest
 from alembic.autogenerate import compare_metadata
 from alembic.config import Config
 from alembic.migration import MigrationContext
+from alembic.script import ScriptDirectory
 from sqlalchemy import insert, inspect, select, text
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
@@ -80,7 +81,11 @@ def test_migration_and_metadata_are_consistent(schema_connection) -> None:
     connection = schema_connection
     assert set(Base.metadata.tables) <= set(inspect(connection).get_table_names())
     schema = connection.scalar(text("SELECT current_schema()"))
-    assert connection.scalar(text(f'SELECT version_num FROM "{schema}".alembic_version')) == "0001"
+    expected_head = ScriptDirectory.from_config(Config("alembic.ini")).get_current_head()
+    assert (
+        connection.scalar(text(f'SELECT version_num FROM "{schema}".alembic_version'))
+        == expected_head
+    )
     context = MigrationContext.configure(
         connection,
         opts={

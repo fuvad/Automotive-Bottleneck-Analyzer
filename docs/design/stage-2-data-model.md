@@ -87,11 +87,13 @@ synthetic calendar choices, not descriptions of a real plant's schedule.
 
 `tests/fixtures/framing_history.json` supplies higher *authored fault duration* at
 Framing and tests that the records reflect that input. Simulation sensitivity must
-still establish whether Framing is the stronger line constraint. Stage 2
-implementation is complete; final acceptance awaits Stage 3's new dataset and
-that verified expected-result case. Stage 3 can begin using the completed schema,
-migration and authored-data pipeline. Its entry dependency is implementation
-completion, not final acceptance of the simulation output it will produce.
+still establish whether Framing is the stronger line constraint. That cross-stage
+acceptance is now complete: Stage 3 verified the Framing stress case and loaded/
+replayed `sim-30day-baseline-v1`, preserving this authored fixture unchanged.
+See [the Stage 3 technical document](stage-3-simulation.md) for the measured
+results and the separate `sim-framing-validation-v1` dataset. Stage 3 consumed
+the completed schema and authored-data pipeline before supplying the remaining
+acceptance evidence; there was no circular implementation dependency.
 
 ## Generate, validate, and load
 

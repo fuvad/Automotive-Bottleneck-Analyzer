@@ -26,6 +26,10 @@ class StationState(StrEnum):
 
 class FaultCategory(StrEnum):
     ROBOT_FAULT = "robot_fault"
+    MECHANICAL_FAULT = "mechanical_fault"
+    ELECTRICAL_FAULT = "electrical_fault"
+    SENSOR_FAULT = "sensor_fault"
+    OTHER_EQUIPMENT_FAULT = "other_equipment_fault"
     QUALITY_STOP = "quality_stop"
     MATERIAL_SHORTAGE = "material_shortage"
 

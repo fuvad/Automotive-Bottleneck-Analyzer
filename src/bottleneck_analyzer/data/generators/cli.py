@@ -44,7 +44,7 @@ def export_history(history: EventHistory, directory: Path) -> Path:
             else:
                 for row in rows:
                     handle.write(json.dumps(row, default=str, sort_keys=True) + "\n")
-    for row in history.rows["sop_document"]:
+    for row in history.rows.get("sop_document", []):
         (directory / f"SOP-{row['id']}.txt").write_text(row["content"], encoding="utf-8")
     manifest.write_text(
         json.dumps(
@@ -52,9 +52,9 @@ def export_history(history: EventHistory, directory: Path) -> Path:
                 "config": history.config.model_dump(mode="json"),
                 "fingerprint": fingerprint,
                 "counts": history.counts(),
-                "provenance": "authored_fixture",
+                "provenance": history.provenance,
                 "limitation": (
-                    "Simulation-derived history will replace these authored fixtures in Stage 3."
+                    "Synthetic records only; provenance identifies authored or simulated history."
                 ),
             },
             indent=2,
