@@ -11,11 +11,11 @@ See [the implementation plan](docs/implementation-plan.md) for the two-day MVP s
 3. Knowledge and Root-Cause Agent: retrieves and interprets linked notes, work orders, Andon remarks, and SOPs.
 4. Simulation Agent: runs SimPy baseline and what-if scenarios and reports line-level effects.
 
-LangGraph will coordinate these four roles with validated routing. Numerical analytics and validation remain deterministic application code.
+LangGraph coordinates these four roles with validated routing. Numerical analytics and validation remain deterministic application code.
 
 ## Technology
 
-Python 3.12+, Poetry, FastAPI, PostgreSQL, pgvector, SQLAlchemy 2.x, Alembic, Pydantic, SimPy, LangGraph, LangSmith, pytest, and Ruff. LLM and embedding providers are configurable. PostgreSQL stores structured records, document text/metadata, embeddings, evidence links, and audit records. Synthetic data, simulation, historical analytics and evidence retrieval are implemented; agents and the business interface follow in later stages.
+Python 3.12+, Poetry, FastAPI, PostgreSQL, pgvector, SQLAlchemy 2.x, Alembic, Pydantic, SimPy, LangGraph, LangSmith, pytest, and Ruff. LLM and embedding providers are configurable. PostgreSQL stores structured records, document text/metadata, embeddings, evidence links, and audit records. Synthetic data, simulation, historical analytics, retrieval and four-agent orchestration are implemented; the business interface belongs to Stage 7.
 
 ## Project layout
 
@@ -93,9 +93,12 @@ calendars, uncertainty, calibration, scenarios and source projections. Its
 Replay and original-fixture preservation checks passed. Stage 4 adds read-only
 historical metrics, segmentation and qualified candidate ranking, verified against
 persisted simulation results. Stage 5 adds bounded evidence retrieval, optional
-compatible pgvector search, provenance and qualified assessments. The final suite
-passed 125 tests. Stages 1–5 and Stage 2 final acceptance are complete; Stage 6 is
-ready and has not been started. Live semantic acceptance passed 17/17 checks,
+compatible pgvector search, provenance and qualified assessments. Stage 6 connects
+the four agents with LangGraph, validated routing and durable investigation audit.
+The full suite passed 192 tests, followed by 20 focused output/grounding checks.
+Stages 1–6 and Stage 2 final acceptance are complete; Stage 7 is ready and has not
+started. Live Stage 6 planning passed eight cases and the complete combined
+investigation passed. Live semantic acceptance passed 17/17 checks,
 using 2,544 indexed text records across the three existing datasets.
 See [implementation status](docs/implementation-status.md) for actual validation
 outcomes and the remaining acceptance evidence.
@@ -171,3 +174,40 @@ records. Existing compatible vectors are skipped, and original source facts rema
 strictly checked on dataset replay. Reports require fresh paths.
 See [Stage 5 retrieval](docs/design/stage-5-retrieval.md) for interfaces, indexing,
 configuration, safeguards, tests and remaining limits.
+
+## Investigation workflow commands
+
+Stage 6 connects the four agents through predefined historical, causes,
+segmentation, simulation and combined routes. Configure `LLM_PROVIDER=openai`,
+`LLM_MODEL` and `LLM_API_KEY` in the local `.env`. The model must support Responses
+structured outputs. No provider key is included in Git. The configured model is
+used as supplied; there is no automatic model substitution or fake fallback.
+
+```powershell
+poetry run python -m bottleneck_analyzer.workflows.cli --request tests/fixtures/stage6-combined-request.json --report data/processed/stage6/combined-example.json
+```
+
+The example uses existing historical data and 20 paired baseline/scenario
+replications. It adds a durable investigation audit record; it does not overwrite
+production history, generate a dataset, or index embeddings. Reports require fresh
+paths. A simulation worker enforces a configurable runtime limit (600 seconds by
+default). An ambiguous request to reduce robot-fault downtime asks whether to
+reduce repair duration or failure rate. Human review is required before acting.
+
+The Python entry point is
+`workflows.graph.InvestigationWorkflow(engine).run(InvestigationRequest(...))`.
+Use a separate workflow instance for each concurrent investigation. Follow-ups
+can explicitly reuse a validated scope. Tracing is optional; PostgreSQL audit
+records remain required. Historical figures, source evidence and modeled
+predictions are separate response fields, with warnings, conflicts and uncertainty.
+No new business HTTP endpoint or UI is included in Stage 6.
+
+Explicit paid live acceptance (outside the ordinary regression suite):
+
+```powershell
+poetry run python scripts/stage6_acceptance.py planning --report data/processed/stage6/new-planning.json
+poetry run python scripts/stage6_acceptance.py combined --report data/processed/stage6/new-combined.json
+```
+
+See [Stage 6 orchestration](docs/design/stage-6-orchestration.md) for contracts,
+service boundaries, provider behavior, routing, audit, limits and validation.

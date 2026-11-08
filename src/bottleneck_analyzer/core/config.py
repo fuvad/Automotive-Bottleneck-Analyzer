@@ -15,6 +15,14 @@ class AppSettings(BaseSettings):
     llm_provider: str = ""
     llm_model: str = ""
     llm_api_key: SecretStr | None = None
+    llm_base_url: str = "https://api.openai.com/v1"
+    llm_timeout_seconds: int = Field(default=30, ge=1, le=120)
+    llm_max_output_tokens: int = Field(default=4000, ge=256, le=16000)
+    workflow_max_steps: int = Field(default=10, ge=7, le=20)
+    workflow_retrieval_limit: int = Field(default=20, ge=1, le=50)
+    simulation_max_days: int = Field(default=30, ge=1, le=366)
+    simulation_max_replications: int = Field(default=20, ge=2, le=50)
+    simulation_timeout_seconds: int = Field(default=600, ge=1, le=600)
     embedding_provider: str = ""
     embedding_model: str = ""
     embedding_api_key: SecretStr | None = None

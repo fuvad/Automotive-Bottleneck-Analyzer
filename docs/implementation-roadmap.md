@@ -7,8 +7,8 @@ Status values used throughout this roadmap:
 - **Completed** — implementation and the relevant checks have been executed successfully.
 - **Blocked** — progress is stopped by a concrete dependency, environment issue, or unresolved requirement; the blocker is recorded.
 
-Stages 1–5 are **Completed**, including Stage 2 final acceptance verified through
-Stage 3 output. Stage 6 is **Not Started — ready to begin**; Stages 7–8 remain
+Stages 1–6 are **Completed**, including Stage 2 final acceptance verified through
+Stage 3 output. Stage 7 is **Not Started — ready to begin**; Stage 8 remains
 **Not Started**.
 
 Implementation completion and final acceptance are tracked separately when an
@@ -252,7 +252,19 @@ added; production history, simulation assumptions and analytics are unchanged.
 
 ### Stage 6 — Four-agent implementation and LangGraph orchestration
 
-**Status:** Not started
+**Status:** Completed — exactly four agents, controlled LangGraph workflows,
+live OpenAI planning/knowledge/combined execution, durable audit and preservation
+checks verified on 2026-11-08. Full suite: **192 passed**; final focused checks:
+**20 passed**. Stage 7 is ready and remains Not Started.
+
+See [Stage 6 orchestration](design/stage-6-orchestration.md). Eight live planning
+and guard cases passed. The full combined run recomputed 20 paired 30-day
+simulations and separate sensitivity checks, preserving 46.88 historical JPH
+versus the 46.255889 replication mean. The paired gain was 3.353111 JPH; Hemming
+remained the modeled candidate. Four new audit records preserve failed attempts
+and the successful investigation. All 20 other business tables, embeddings,
+dataset hashes, saved simulation reports and existing service code are unchanged.
+No dependency, migration, fifth agent, business endpoint or UI was added.
 
 **Objective:** Connect exactly four logical agents through validated schemas and explicit LangGraph routes so a natural-language investigation completes the historical, cause, simulation, or combined workflow.
 
@@ -261,7 +273,10 @@ added; production history, simulation assumptions and analytics are unchanged.
 **Components and files:**
 
 - Existing: `src/bottleneck_analyzer/agents/__init__.py`, `src/bottleneck_analyzer/workflows/__init__.py`.
-- Proposed: typed contracts and implementations under `agents/`, graph/state/router modules under `workflows/`, shared validation/audit modules under `core/` or `workflows/`, and agent/workflow tests under `tests/unit/` and `tests/integration/`.
+- Created: agent contracts, planner, analytics, knowledge and simulation modules;
+  workflow graph, shared validation, audit writer and CLI; typed LLM adapter and
+  metadata-only observability; unit/integration tests, combined request fixture,
+  explicit live acceptance script and Stage 6 technical documentation.
 
 **Important implementation decisions:**
 
@@ -438,20 +453,20 @@ When blocked, record the specific missing dependency, attempted checks, impact o
 ### Functional workflow
 
 - [ ] Local web interface accepts a production-engineer question and returns an answer-first response.
-- [ ] The workflow supports all four question groups: (1) constraint and output loss, (2) shift/model/time segmentation, (3) causes and evidence, and (4) 30% robot-fault what-if with possible constraint movement.
-- [ ] Responses include key metrics, evidence IDs, linked evidence, assumptions, uncertainty, limitations, and human-review guidance.
-- [ ] Historical findings, recorded causes/associations, supported hypotheses, and simulated predictions are labeled distinctly.
-- [ ] Investigation ID, question, scope, plan, tool results, records, model/data versions, scenario parameters, seeds, validation, evidence IDs, and final answer are auditable.
+- [x] The backend workflow supports all four question groups: (1) constraint and output loss, (2) shift/model/time segmentation, (3) causes and evidence, and (4) 30% robot-fault what-if with possible constraint movement. Interface demonstration remains Stage 7.
+- [x] Responses include key metrics, evidence IDs, linked evidence, assumptions, uncertainty, limitations, and human-review guidance.
+- [x] Historical findings, recorded causes/associations, supported hypotheses, and simulated predictions are labeled distinctly.
+- [x] Investigation ID, question, scope, plan, tool results, records, model/data versions, scenario parameters, seeds, validation, evidence IDs, and final answer are auditable.
 
 ### Architecture and agents
 
-- [ ] Exactly four logical agents are implemented: Orchestrator/Planner, Data and Analytics, Knowledge and Root-Cause, and Simulation.
-- [ ] Agent 1 interprets language, validates scope, routes predefined workflows, handles clarification, and composes the final answer.
-- [ ] Agent 2 uses read-only PostgreSQL and deterministic calculations for JPH, station-state/cycle metrics, candidates, and evidence IDs.
-- [ ] Agent 3 performs exact incident/work-order, metadata, full-text, and pgvector retrieval and qualifies causes.
-- [ ] Agent 4 runs approved SimPy baseline/scenario comparisons and reports uncertainty and possible constraint movement.
-- [ ] LangGraph orchestration uses typed state and explicit routes; validation is shared application code, not a fifth agent.
-- [ ] LangSmith spans and local logs/audit records work without making tracing a hard dependency.
+- [x] Exactly four logical agents are implemented: Orchestrator/Planner, Data and Analytics, Knowledge and Root-Cause, and Simulation.
+- [x] Agent 1 interprets language, validates scope, routes predefined workflows, handles clarification, and composes the final answer.
+- [x] Agent 2 uses read-only PostgreSQL and deterministic calculations for JPH, station-state/cycle metrics, candidates, and evidence IDs.
+- [x] Agent 3 performs exact incident/work-order, metadata, full-text, and pgvector retrieval and qualifies causes.
+- [x] Agent 4 runs approved SimPy baseline/scenario comparisons and reports uncertainty and possible constraint movement.
+- [x] LangGraph orchestration uses typed state and explicit routes; validation is shared application code, not a fifth agent.
+- [x] LangSmith spans and local logs/audit records work without making tracing a hard dependency. Local logs/audit verified live; optional client paths verified offline, without claiming remote delivery.
 
 ### Data and storage
 

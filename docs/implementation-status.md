@@ -4,7 +4,7 @@
 
 - **Project name:** Automotive Bottleneck Analyzer
 - **Overall status:** In Progress
-- **Current stage:** Stage 6 — Four-Agent Implementation and LangGraph Orchestration (Not Started — ready to begin)
+- **Current stage:** Stage 7 — API and Local User Interface (Not Started — ready to begin)
 - **Stage 2:** Implementation and Final Acceptance Completed
 - **Stage 3:** Completed
 - **Last updated:** 2026-11-08
@@ -19,8 +19,8 @@
 | Stage 3 — Seven-Station SimPy Discrete-Event Simulation | Completed | Simulation, calibration, uncertainty, both interventions, persistence/replay and final 64-test suite verified. |
 | Stage 4 — Historical Analytics and Bottleneck Candidate Identification | Completed | Read-only metrics, segmentation, source references, candidates, persisted reference comparisons and final 89-test suite passed. |
 | Stage 5 — Knowledge Retrieval and Evidence Linking | Completed | Live semantic acceptance closed: 2,544 vectors, 17/17 live checks, source-fact preservation and final 125-test suite passed. |
-| Stage 6 — Four-Agent Implementation and LangGraph Orchestration | Not Started | Ready to begin; Stages 1–5 are verified. |
-| Stage 7 — API and Local User Interface | Not Started | Waiting for Stage 6. |
+| Stage 6 — Four-Agent Implementation and LangGraph Orchestration | Completed | 192 tests; 20 final focused checks; 8 live planning/guard cases; complete live combined workflow and preservation audit passed. |
+| Stage 7 — API and Local User Interface | Not Started | Ready to begin using verified Stage 6 contracts/workflow. |
 | Stage 8 — Testing, Validation, Documentation, and Presentation | Not Started | Waiting for the implemented vertical workflow. |
 
 ## Completed tasks
@@ -33,8 +33,8 @@
 - Added `/health` and `/health/database` endpoints with startup/shutdown logging and tracing-disabled operation.
 - Added isolated foundation tests for settings, health endpoints, missing database configuration, and shared contract validation.
 
-Stages 1–5 are complete. Stage 3's verified simulation datasets close Stage 2 final
-acceptance. Stage 6 is ready but has not been started. The execution records below
+Stages 1–6 are complete. Stage 3's verified simulation datasets close Stage 2 final
+acceptance. Stage 7 is ready and has not started. The execution records below
 retain the earlier pending state and the final verification evidence.
 
 ## Pending tasks
@@ -56,7 +56,7 @@ retain the earlier pending state and the final verification evidence.
 - [x] Implement the seven-station SimPy simulation, buffers, faults, repairs, calendars, scenarios, and uncertainty.
 - [x] Implement deterministic historical analytics and candidate identification.
 - [x] Implement evidence ingestion, exact/lexical/vector retrieval, linking, and qualified cause assessment.
-- [ ] Implement exactly four agents and controlled LangGraph workflows.
+- [x] Implement exactly four agents and controlled LangGraph workflows.
 - [ ] Implement the read-only API and local web interface.
 - [ ] Complete validation, documentation, packaging, presentation, and rehearsal.
 
@@ -92,6 +92,9 @@ Repository inspection was completed before implementation. Those inspection comm
 - None for Stage 5. The configured provider, live embeddings and 17 synthetic
   semantic/hybrid acceptance cases are verified; general real-plant relevance
   remains outside the scope of these checks.
+- None for Stage 6. Live OpenAI planning, grounded evidence selection, the full
+  combined experiment, audit storage and preservation checks passed. Optional
+  remote LangSmith delivery was not tested because tracing is disabled.
 - Resolved incident: PostgreSQL reported `DiskFull` (53100). The user freed disk space and restarted the stopped service. Database recovery, full dataset load/replay, authored-data preservation and final tests all passed afterward. The agent did not delete data/files to resolve the incident.
 
 ### Decisions
@@ -784,3 +787,188 @@ its before audit, `live-calibration-v1.json`, `live-validation-v1.json`, and
 `live-post-index-analytics.json`. Reports require fresh paths. Original plan,
 four-agent architecture and two-day schedule remain unchanged. No Git commit
 was created. Stage 5 live acceptance is now closed; **Stage 6 remains Not Started**.
+
+## Stage 6 execution record — 2026-11-08
+
+**Status: Completed. Stage 7 is ready and remains Not Started.**
+
+Read the attached task and all nine required project documents. Inspected actual
+contracts, source interfaces, PostgreSQL mappings, tests, settings and installed
+APIs before implementation. Shared contracts are in `domain/models.py`, not the
+request's nonexistent `core/contracts.py`. Reused those actual contracts.
+Installed versions include LangGraph 1.2.20, LangSmith 0.14.17 and Pydantic 2.14.3.
+No dependency, lock-file, migration, original implementation plan or Stage 1–5
+service behavior was changed. Alembic remains at `0002`.
+
+### Implemented and verified
+
+- [x] Exactly four agents: planner/composer, analytics, knowledge and simulation.
+- [x] Typed requests, plans, specialist boundaries, refined shared state, results,
+  execution events/errors and final response contracts.
+- [x] Five Python-registered routes: historical constraint/output, segmentation,
+  causes, what-if and combined. LangGraph uses explicit conditional edges and
+  bounded steps; it cannot dispatch arbitrary model-generated functions or SQL.
+- [x] Existing `analyze()`, `request_from_analytics()`, `retrieve()`, `compare()`
+  and `assess_comparison()` interfaces reused without duplicate business engines.
+- [x] Scope/UUID/period validation, ambiguity clarification, unsupported-action
+  refusal, empty/partial evidence and specialist/provider failure handling.
+- [x] OpenAI Responses structured planning, schema-enumerated evidence-ID
+  selection and grounded introduction/citation selection. Python preserves
+  assessment labels, explanations, contradictions and verbatim excerpts and
+  supplies unresolved questions from known evidence limitations.
+- [x] Both robot-fault intervention methods, immutable configuration validation,
+  paired uncertainty and independent before/after constraint sensitivity.
+- [x] Killable simulation worker with configurable scope/replication/runtime
+  bounds; final default runtime limit 600 seconds; zero automatic LLM retries.
+- [x] Historical/model-contribution/closed-period semantics preserved. The
+  validator accepts legitimate shift narrowing and model design-gap nulls.
+- [x] Existing PostgreSQL investigation-audit table used for initial, per-node
+  and final durable state. Audit failures prevent confirmed completion.
+- [x] Data hashes, requested provider/model identifiers, adapter identity,
+  simulation version, execution limits, source IDs, seed lists, tool results,
+  validation, timings and response are retained. Model aliases are recorded as
+  requested aliases, without claiming an exact provider snapshot.
+- [x] Optional metadata-only LangSmith client and structured local events;
+  automatic full-state cloud tracing disabled; local audit works without tracing.
+- [x] Terminal entry point, report output, safe configuration-error reporting,
+  example request, explicit live acceptance runner and technical documentation.
+- [x] Full regression, final focused output checks and preservation audit passed.
+
+### Live provider and full workflow
+
+Initially the LLM settings were empty. The user configured local OpenAI
+`gpt-4o-mini` access while independent implementation/tests continued. The agent
+did not print, copy into documentation, or modify the actual API key.
+
+Eight live planning/guard cases passed in **14.44 seconds**, covering historical,
+causes, segmentation, repair-duration, failure-rate, combined, ambiguous downtime
+and production-write refusal. Live knowledge selection passed with **three**
+allowed supporting source IDs. Exact, lexical and semantic retrieval ran with no
+unavailable methods. Matching counts remain available in the reports; running
+semantic search does not imply every query returned semantic matches.
+
+The complete natural-language question ran through all four agents, shared
+validation and composition. Successful audit:
+**`b8291895-7348-429e-b84c-fb33992dea4e`**.
+
+| Actual result | Value |
+| --- | --- |
+| Historical JPH / leading candidate | 46.88 / Hemming |
+| Historical design gap | 13.12 JPH; not station-specific recoverable output |
+| Retrieved evidence / qualified label | 6 records / `supported_hypothesis` |
+| Simulation horizon / replications | 30 days each / 20 paired replications |
+| Evaluation seeds | 1001–1020 |
+| Simulated baseline mean | 46.255889 JPH |
+| Simulated repair-duration scenario mean | 49.609000 JPH |
+| Mean paired gain / 95% interval | 3.353111 JPH / 3.275210–3.431012 |
+| Separate sensitivity | Five three-day seeds 2001–2005, baseline and scenario |
+| Modeled constraint movement | Hemming before and after; no movement |
+| Full workflow / simulation duration | 355.09 / 304.34 seconds |
+
+The comparison was actually recomputed using Stage 3. No saved answer, hardcoded
+gain, changed historical dataset or shortened replacement experiment was used.
+The retained single-run historical JPH remains distinct from the replication mean.
+
+Earlier live attempts safely rejected invalid model output. The final contract
+limits the model to selecting source IDs from an enum; Python copies factual
+assessment fields and excerpts. The initial 300-second simulation limit also
+stopped a run correctly. Raising the configured bound to 600 seconds retained all
+20 pairs and sensitivity checks; the successful measured runtime was 304.34 seconds.
+Failed attempts remain in audit/report history and are not counted as acceptance.
+
+### Commands and actual results
+
+All commands used the existing Windows `.venv` from the project root. Ordinary
+tests use language-model fixtures; paid calls occur only in the explicit live
+acceptance commands.
+
+| Executed command/check | Actual result |
+| --- | --- |
+| `STAGE2_TEST_POSTGRES=1`, `.\.venv\Scripts\python.exe -m pytest -q --tb=short` | **192 passed in 227.36 seconds**, exit 0. Includes the existing 125-test suite and 67 Stage 6 tests. |
+| Final focused unit knowledge + PostgreSQL graph checks | **20 passed in 83.94 seconds**, exit 0, after final unresolved-question/citation changes. |
+| `.\.venv\Scripts\ruff.exe check . --output-format concise` | **Passed**, all checks passed. |
+| `.\.venv\Scripts\python.exe -m compileall -q src tests alembic scripts` | **Passed**, exit 0. |
+| `.\.venv\Scripts\python.exe -m poetry check` | **Passed**, `All set!`. |
+| `.\.venv\Scripts\python.exe -m alembic check` | **Passed**, no new upgrade operations detected. |
+| `.\.venv\Scripts\python.exe -m alembic current` | **0002 (head)**, unchanged. |
+| Stage 6 imports and existing FastAPI TestClient startup | **Passed**; `/health` HTTP 200, tracing disabled. |
+| `python -m bottleneck_analyzer.workflows.cli --help` | **Passed**. |
+| CLI with deliberately invalid PostgreSQL configuration | **Passed**; expected exit 1, safe error, sentinel configuration value not exposed. |
+| Live `stage6_acceptance.py planning` | **8/8 passed**, `live-planning-v3.json`. |
+| Live isolated `stage6_acceptance.py knowledge --audit ...` | **Passed**, final ID-selection contract in `live-knowledge-v3.json`. |
+| Live `stage6_acceptance.py combined` | **Passed**, all required nodes completed; `live-combined-v4.json`. |
+| Original-table/report/vector/protected-file preservation | **Passed**, all recorded checks true. |
+| Post-test temporary-schema query | **0** `stage2_test_%` schemas remain. |
+
+Full-suite command:
+
+```powershell
+$env:STAGE2_TEST_POSTGRES='1'
+.\.venv\Scripts\python.exe -m pytest -q --tb=short
+Remove-Item Env:STAGE2_TEST_POSTGRES
+```
+
+Final affected-output checks:
+
+```powershell
+$env:STAGE2_TEST_POSTGRES='1'
+.\.venv\Scripts\python.exe -m pytest tests/unit/test_knowledge_agent.py tests/integration/test_orchestration.py -q --tb=short
+Remove-Item Env:STAGE2_TEST_POSTGRES
+```
+
+Development checks also caught a test-helper argument conflict and integration
+assumptions about shift bounds/model design gaps. Those were fixed in the new
+Stage 6 layer, preserving Stage 4 behavior and all prior tests. No unresolved test
+failure remains. No separate static type checker is configured or claimed.
+
+### Preservation and files
+
+The before/after snapshot compared all original source facts and counts in the
+**20 business tables other than `investigation_audit`**, including model
+configurations and simulation runs. Every comparison matched. The three original
+dataset hashes/provenance labels remain unchanged. The source-record count stays
+**555,714** and all **2,544** embeddings/model identities match the original vector
+digest. Saved Stage 3 reports and protected analytics/retrieval/simulation,
+migration, dependency, AGENTS and original-plan files match their pre-stage hashes.
+
+The only database additions are **four new investigation audits**: three failed
+attempts and the successful combined run. No pre-existing audit rows existed or
+were replaced. The successful audit includes model identifiers, limits, full
+results/seeds, validation, final response and matching audit ID. Tests created only
+rollback-only isolated fixtures, and no temporary schemas remain.
+
+Created:
+
+- `agents/contracts.py`, `planner.py`, `analytics.py`, `knowledge.py`, `simulation.py`.
+- `core/llm.py`, `core/observability.py`.
+- `workflows/graph.py`, `validation.py`, `audit.py`, `cli.py`.
+- `tests/unit/test_orchestration.py`, `tests/unit/test_knowledge_agent.py`,
+  `tests/integration/test_orchestration.py`, `tests/fixtures/stage6-combined-request.json`.
+- `scripts/stage6_acceptance.py`, `docs/design/stage-6-orchestration.md`.
+
+Package paths above are under `src/bottleneck_analyzer/`. Modified only
+`core/config.py`, `.env.example`, README, roadmap and this status document among
+pre-existing files. No original service/test, dependency or migration was changed.
+No Git commit was created.
+
+Ignored artifacts under `data/processed/stage6/` include preservation snapshots,
+live planning/knowledge/combined reports and retained failed attempts. Real local
+`.env` and generated reports remain ignored by Git.
+
+### Limits and handoff
+
+No Stage 6 acceptance blocker remains. All data/models remain synthetic;
+correlation and model sensitivity are not real-plant causal proof. Evidence
+interpretation is deliberately extractive. Model-specific shared machine states
+remain unavailable, and filtered simulation baselines require clarification
+rather than silently changing the scenario population/calendar. Cloud-dependent
+language features fail clearly rather than fabricate a successful answer.
+
+The full local experiment took about six minutes; the configurable runtime bound
+does not imply a latency guarantee. Requested model aliases are not pinned
+provider snapshots. LangSmith is disabled locally: no remote delivery claim is
+made, while optional client/failure paths and live local logs/audit are verified.
+Human review remains required and no operational approval was fabricated.
+
+Stage 6 is **Completed**. Stage 7 can safely begin using the validated public
+workflow and response contracts. Stage 7 and Stage 8 were not implemented.

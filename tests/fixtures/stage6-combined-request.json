@@ -1,0 +1,5 @@
+{
+  "question": "Which station limits JPH, what evidence may explain its interruptions, and what would a 30% reduction in robot repair duration change?",
+  "scope": {"dataset": "sim-30day-baseline-v1"},
+  "retrieval_limit": 10
+}
