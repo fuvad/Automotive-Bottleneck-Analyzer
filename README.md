@@ -15,7 +15,7 @@ LangGraph coordinates these four roles with validated routing. Numerical analyti
 
 ## Technology
 
-Python 3.12+, Poetry, FastAPI, PostgreSQL, pgvector, SQLAlchemy 2.x, Alembic, Pydantic, SimPy, LangGraph, LangSmith, pytest, and Ruff. LLM and embedding providers are configurable. PostgreSQL stores structured records, document text/metadata, embeddings, evidence links, and audit records. Synthetic data, simulation, historical analytics, retrieval and four-agent orchestration are implemented; the business interface belongs to Stage 7.
+Python 3.12+, Poetry, FastAPI, PostgreSQL, pgvector, SQLAlchemy 2.x, Alembic, Pydantic, SimPy, LangGraph, LangSmith, pytest, and Ruff. LLM and embedding providers are configurable. PostgreSQL stores structured records, document text/metadata, embeddings, evidence links, and audit records. Synthetic data, simulation, historical analytics, retrieval, four-agent orchestration, the API and local web interface are implemented.
 
 ## Project layout
 
@@ -36,14 +36,17 @@ Install Python 3.12 or newer, Poetry, PostgreSQL, and the matching PostgreSQL `p
 CREATE EXTENSION IF NOT EXISTS vector;
 ```
 
-Copy `.env.example` to `.env`, then set `DATABASE_URL` to a PostgreSQL URL using the psycopg 3 driver. Configure model, embedding, and LangSmith keys before those features are implemented. The initialization milestone does not need a live PostgreSQL server for import and configuration checks.
+For a fresh installation, copy `.env.example` to `.env`, then set `DATABASE_URL` to a PostgreSQL URL using the psycopg 3 driver. Preserve an existing configured `.env` and database. Configure language/embedding providers for investigation execution; LangSmith remains optional. Liveness and the UI can start without PostgreSQL or provider access.
 
 ```powershell
 poetry install
-poetry run uvicorn bottleneck_analyzer.main:app --reload
+poetry run python -m bottleneck_analyzer.api.cli
 ```
 
-FastAPI exposes `/health`, `/health/database`, and its documentation interface.
+Open `http://127.0.0.1:8000/`. The supported launcher uses one worker without reload,
+requires loopback binding and disables proxy-header trust. FastAPI also exposes
+`/health`, `/health/database`, and `/docs`. If Poetry is not on PATH, use
+`.\.venv\Scripts\python.exe -m bottleneck_analyzer.api.cli`.
 See [the Stage 2 data model and operating instructions](docs/design/stage-2-data-model.md)
 for the business schema, synthetic fixture generator, exports, and isolated database tests.
 
@@ -95,9 +98,9 @@ historical metrics, segmentation and qualified candidate ranking, verified again
 persisted simulation results. Stage 5 adds bounded evidence retrieval, optional
 compatible pgvector search, provenance and qualified assessments. Stage 6 connects
 the four agents with LangGraph, validated routing and durable investigation audit.
-The full suite passed 192 tests, followed by 20 focused output/grounding checks.
-Stages 1–6 and Stage 2 final acceptance are complete; Stage 7 is ready and has not
-started. Live Stage 6 planning passed eight cases and the complete combined
+Stages 1–7 and
+Stage 2 final acceptance are complete; Stage 8 remains Not Started.
+Live Stage 6 planning passed eight cases and the complete combined
 investigation passed. Live semantic acceptance passed 17/17 checks,
 using 2,544 indexed text records across the three existing datasets.
 See [implementation status](docs/implementation-status.md) for actual validation
@@ -211,3 +214,63 @@ poetry run python scripts/stage6_acceptance.py combined --report data/processed/
 
 See [Stage 6 orchestration](docs/design/stage-6-orchestration.md) for contracts,
 service boundaries, provider behavior, routing, audit, limits and validation.
+
+## Local investigation interface and API
+
+The local UI is a single conversation. Select the dataset and UTC period at the
+top, select an example or type a question, then press **Send** (or Enter;
+Shift+Enter inserts a newline). Ask about stations, models, shifts and either
+intervention in your question. Ambiguous interventions request clarification.
+Answers lead with the result relevant to your question in plain language.
+Maintenance questions explain the evidence; what-if questions lead with the
+estimated change and its uncertainty. Each answer has **View evidence**, including historical measurements and source
+samples, retrieved passages, modeled uncertainty, and limitations.
+
+Follow up naturally: “Why is that happening?” uses bounded summaries of the last
+five finalized exchanges from this chat. Older messages remain visible but are
+outside model context. Changing the dataset or period starts fresh context.
+**New chat** clears the visible conversation and its context connection; durable
+audit records remain. Refresh restores this one conversation from browser-local
+identifiers and scope, fetching saved answers without repeating submissions.
+There is no archived-chat browser. New chat and scope changes are disabled during
+known active execution.
+
+`POST /api/investigations` accepts the existing Stage 6 request and requires a UUID
+`X-Submission-Key`. HTTP 202 follows initial audit commitment; poll the returned
+status/result links. `GET /api/submissions/{key}` reconciles uncertain admission.
+Dataset catalog/options and bounded investigation history are read-only GETs.
+All five finalized Stage 6 outcomes are retrieved with HTTP 200; workflow outcome
+is separate from API success. An unfinished audit is never presented as complete.
+
+Only one API investigation runs at a time. There is no durable queue, automatic
+resume or guaranteed deduplication across restart. Shutdown drains accepted work;
+a full simulation can take several minutes. Refresh/reconnect performs GETs only.
+Saved results are labeled as saved and can be viewed without a model call or
+simulation rerun. The interface has no production controls or approval automation.
+
+Initial Stage 7 acceptance used fixture model/browser journeys and read-only rendering of
+the existing live combined audit. No production simulation, reseeding, embedding
+indexing or paid provider call was repeated during Stage 7.
+See [Stage 7 API/UI](docs/design/stage-7-api-ui.md) for endpoints, admission races,
+security boundaries, limits and browser acceptance.
+
+```powershell
+$env:STAGE2_TEST_POSTGRES='1'
+$env:STAGE7_TEST_SAVED_BROWSER='1'
+.\.venv\Scripts\python.exe -m pytest -q --tb=short
+Remove-Item Env:STAGE2_TEST_POSTGRES
+Remove-Item Env:STAGE7_TEST_SAVED_BROWSER
+node --test tests/ui/client.test.mjs
+```
+
+Edge headless acceptance uses the existing installed browser; no browser package
+was added. Missing Edge is an explicit skip, with manual acceptance instructions
+documented separately. Generated acceptance reports remain ignored by Git.
+
+The responsive chat keeps the composer visible. **View evidence** gives a short,
+plain-language explanation with relevant figures or up to three source excerpts,
+rather than a technical audit dump. Full records remain in the saved audit and
+existing API result. Investigation IDs are copyable. Windows CSS MIME
+handling remains `text/css`, preserving CSP and `nosniff`. Chat screenshots and
+browser reports are under ignored `data/processed/stage7/chat/`. The pre-existing
+favicon 404 remains because the user declined a favicon asset.

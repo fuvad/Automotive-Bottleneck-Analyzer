@@ -10,6 +10,7 @@ from bottleneck_analyzer.agents.contracts import (
 )
 from bottleneck_analyzer.agents.planner import WORKFLOWS
 from bottleneck_analyzer.simulation.config import Intervention, SimulationConfig, updated
+from bottleneck_analyzer.workflows.answers import comparisons, source_excerpts
 
 
 def validate_plan(plan: InvestigationPlan) -> None:
@@ -161,65 +162,17 @@ def summarize(state: WorkflowState) -> AnalyticsSummary | None:
     )
 
 
-def safe_introductions(state: WorkflowState) -> list[str]:
-    leading = state.analytics.overall.leading_candidate if state.analytics else None
-    return [
-        f"{leading} is the strongest historical bottleneck candidate in this scope."
-        if leading
-        else "The historical evidence does not establish a leading bottleneck candidate.",
-        "The investigation reports historical measurements and separately labeled tool findings.",
-    ]
+def segmentation_findings(summary: AnalyticsSummary) -> list[str]:
+    """Compatibility entry point for presentation of the existing segment results."""
+    return comparisons(summary)
 
 
-def render(state: WorkflowState, introduction: str) -> str:
-    """Numbers are copied from validated tool outputs, never supplied by the LLM."""
-    lines = [introduction]
-    if state.analytics:
-        candidate = state.analytics.overall.leading_candidate
-        if candidate and candidate not in introduction:
-            lines.append(f"Historical leading candidate: {candidate}.")
-        line = state.analytics.overall.line
-        if line.jph is None:
-            lines.append(
-                "The selected period has no scheduled production hours; JPH is unavailable."
-            )
-        else:
-            lines.append(
-                f"Historical output: {line.jph:.4f} JPH, {line.completed} completions over "
-                f"{line.scheduled_hours:g} scheduled hours."
-            )
-            if line.design_gap_jph is not None:
-                lines.append(
-                    f"Design gap: {line.design_gap_jph:.4f} JPH; "
-                    "this is not station-specific recoverable output."
-                )
-            else:
-                lines.append(
-                    "Model JPH is a contribution to mixed-line output, "
-                    "not exclusive-model capacity; no design gap is attributed."
-                )
-    if state.knowledge:
-        for item in state.knowledge.retrieval.assessments:
-            lines.append(f"Source evidence — {item.station}, {item.label}: {item.statement}")
-        for item in state.knowledge.interpretations:
-            for excerpt in item.excerpts:
-                lines.append(f"[{excerpt.evidence_id}] {excerpt.quote}")
-            if item.unresolved_questions:
-                lines.append("Unresolved: " + " ".join(item.unresolved_questions))
-    if state.simulation:
-        result = state.simulation
-        lines.append(
-            f"Simulated paired means ({result.baseline.n} replications, {result.days} days each): "
-            f"baseline {result.baseline.mean:.4f} JPH; scenario {result.scenario.mean:.4f} JPH; "
-            f"gain {result.paired_gain.mean:.4f} JPH, 95% interval "
-            f"[{result.paired_gain.ci95[0]:.4f}, {result.paired_gain.ci95[1]:.4f}]. "
-            "These predictions are separate from the retained historical run."
-        )
-        assessment = result.constraint_assessment
-        lines.append(
-            f"Modeled sensitivity candidates: {assessment['baseline_constraint']['primary']} "
-            f"before, {assessment['scenario_constraint']['primary']} after; "
-            f"constraint moved: {assessment['constraint_moved']}."
-        )
-    lines.append("Human review and approval are required before any operational change.")
-    return "\n\n".join(lines)
+def render(state: WorkflowState, answer: str) -> str:
+    """Preserve Agent 1's complete validated answer without adding category paragraphs."""
+    return "\n\n".join(
+        [
+            answer,
+            *source_excerpts(state.knowledge),
+            "Human review and approval are required before any operational change.",
+        ]
+    )

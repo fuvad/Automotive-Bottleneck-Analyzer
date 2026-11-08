@@ -45,6 +45,7 @@ from bottleneck_analyzer.simulation.config import SimulationConfig
 from bottleneck_analyzer.workflows.audit import AuditUnavailable
 from bottleneck_analyzer.workflows.graph import InvestigationWorkflow
 from bottleneck_analyzer.workflows.validation import validate_plan
+from tests.composition_fixtures import draft_parts
 
 
 class FixtureLLM:
@@ -79,10 +80,30 @@ class FixtureLLM:
             )
         if issubclass(schema, EvidenceSelection):
             return schema(evidence_ids=[e["id"] for e in data["evidence"]][:5])
-        if issubclass(schema, Explanation):
+        if schema.__name__ == "GroundedExplanation":
+            facts = data["facts"]
+            selected = ["historical.candidate"]
+            text = facts["historical.candidate"]["text"] + "."
+            if "simulation.gain" in facts:
+                selected += [
+                    "simulation.baseline",
+                    "simulation.scenario",
+                    "simulation.gain",
+                    "simulation.gain_interval",
+                ]
+                text += (
+                    " The simulation estimates output would go from "
+                    "{{simulation.baseline}} to {{simulation.scenario}}, a change of "
+                    "{{simulation.gain}}; {{simulation.gain_interval}}."
+                )
+            if "comparison.model.candidate.0" in facts:
+                selected += ["comparison.model.candidate.0"]
+                text += " " + facts["comparison.model.candidate.0"]["text"] + "."
             return schema(
-                summary=data["allowed_summaries"][0],
-                evidence_ids=data["evidence_ids"],
+                answer_goal="Answer this scripted question using the supplied findings.",
+                paragraphs=draft_parts(text),
+                fact_ids=selected,
+                evidence_ids=[],
                 limitations=[],
             )
         raise AssertionError(schema)
@@ -193,6 +214,53 @@ def test_real_graph_historical_and_segmentation(monkeypatch, bundle, intent):
     InvestigationResponse.model_validate(result.model_dump())
 
 
+def test_segmentation_answer_addresses_shifts_and_models(monkeypatch, bundle):
+    scope, _, analytics = bundle
+    base = analytics.overall
+    analytics.segments = [
+        base.model_copy(
+            update={"key": key, "kind": kind, "label": label, "leading_candidate": candidate}
+        )
+        for key, kind, label, candidate in [
+            ("shift:a", "shift", "First dated shift", "Hemming"),
+            ("shift:b", "shift", "Second dated shift", "Framing"),
+            ("shift:c", "shift", "Sparse dated shift", None),
+            ("model:SUV", "model", "SUV", "Framing"),
+            ("model:Sedan", "model", "Sedan", "Framing"),
+        ]
+    ]
+    workflow, request = make_workflow(monkeypatch, bundle, QuestionIntent.SEGMENTATION)
+    result = workflow.run(request)
+    assert result.outcome == "completed"
+    assert "SUV historical candidate: Framing" in result.answer
+    assert result.answer.startswith(result.interpretation.summary)
+    assert result.interpretation.composition_version == "question_specific_v1"
+    assert "comparison.model.candidate.0" in result.interpretation.fact_ids
+    assert result.historical.segments[0].jph == analytics.segments[0].line.jph
+
+
+def test_segmentation_summary_abstains_for_missing_and_unresolved_groups(bundle):
+    from bottleneck_analyzer.workflows.validation import segmentation_findings, summarize
+
+    scope, context, analytics = bundle
+    request = InvestigationRequest(question="Compare shifts", scope=scope)
+    state = WorkflowState(
+        question=request.question,
+        request=request,
+        scope=scope,
+        context=context,
+        analytics=analytics,
+    )
+    assert "can't tell whether" in segmentation_findings(summarize(state))[0]
+    analytics.segments = [
+        analytics.overall.model_copy(update={"kind": "shift", "leading_candidate": None})
+    ]
+    assert (
+        "isn't enough evidence to identify a bottleneck"
+        in segmentation_findings(summarize(state))[0]
+    )
+
+
 @pytest.mark.parametrize(
     "intent", [QuestionIntent.CAUSES, QuestionIntent.WHAT_IF, QuestionIntent.COMBINED]
 )
@@ -240,7 +308,8 @@ def test_all_dependent_graph_routes(monkeypatch, bundle, intent):
     if "simulation" in WORKFLOWS[intent]:
         assert response.simulation.baseline.n == 2
         assert response.historical.historical_jph == 10
-        assert "Simulated paired means" in response.answer
+        assert "the simulation estimates output would go from" in response.answer.lower()
+        assert "95% confidence interval" in response.answer
 
 
 def test_ambiguous_downtime_clarifies_without_provider_or_tools(monkeypatch, bundle):
@@ -523,7 +592,7 @@ def test_llm_unsupported_final_citation_is_rejected(monkeypatch, bundle):
 
     def wrong_citation(instruction, data, schema):
         output = original(instruction, data, schema)
-        if issubclass(schema, Explanation):
+        if schema.__name__ == "GroundedExplanation":
             output.evidence_ids = ["invented"]
         return output
 

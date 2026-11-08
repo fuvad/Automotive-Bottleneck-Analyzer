@@ -38,6 +38,7 @@ class InvestigationRequest(Contract):
     incident_ids: list[UUID] = Field(default_factory=list, max_length=50)
     work_order_ids: list[UUID] = Field(default_factory=list, max_length=50)
     retrieval_limit: int = Field(default=20, ge=1, le=50)
+    previous_investigation_id: UUID | None = None
 
     @model_validator(mode="after")
     def question_not_blank(self):
@@ -167,6 +168,8 @@ class Explanation(Contract):
     summary: str = Field(min_length=1, max_length=1600)
     evidence_ids: list[str] = Field(max_length=50)
     limitations: list[str] = Field(max_length=15)
+    fact_ids: list[str] = Field(default_factory=list, max_length=40)
+    composition_version: Literal["question_specific_v1"] | None = None
 
 
 class SegmentSummary(Contract):
@@ -243,6 +246,22 @@ class InvestigationResponse(Contract):
         return self
 
 
+class ConversationTurn(Contract):
+    """A bounded, qualified reference to a finalized exchange, never trusted memory."""
+
+    investigation_id: UUID
+    question: str = Field(max_length=2000)
+    answer: str = Field(max_length=1600)
+    scope: AnalyticsScope
+    outcome: Outcome
+    clarification: str | None = Field(default=None, max_length=1000)
+    leading_candidate: str | None = None
+    historical_jph: float | None = None
+    scenario: ScenarioRequest | None = None
+    evidence_labels: list[str] = Field(default_factory=list, max_length=4)
+    warnings: list[str] = Field(default_factory=list, max_length=3)
+
+
 class WorkflowState(InvestigationState):
     """Refines the Stage 1 state rather than creating another domain vocabulary."""
 
@@ -261,6 +280,8 @@ class WorkflowState(InvestigationState):
     events: list[ExecutionEvent] = Field(default_factory=list)
     model_versions: dict[str, str] = Field(default_factory=dict)
     execution_limits: dict[str, int] = Field(default_factory=dict)
+    conversation_context: list[ConversationTurn] = Field(default_factory=list, max_length=5)
+    conversation_warnings: list[str] = Field(default_factory=list)
 
 
 def validate_station(station: str) -> str:

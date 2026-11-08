@@ -21,6 +21,7 @@ from bottleneck_analyzer.simulation.engine import run_simulation
 from bottleneck_analyzer.simulation.persistence import persist_result
 from bottleneck_analyzer.workflows.audit import create_audit, dataset_context, save_audit
 from bottleneck_analyzer.workflows.graph import InvestigationWorkflow
+from tests.composition_fixtures import draft_parts
 
 from .test_business_schema import schema_connection as schema_connection
 
@@ -53,8 +54,10 @@ class FixtureLLM:
             return schema.model_validate({"evidence_ids": [e["id"] for e in data["evidence"]][:5]})
         return schema.model_validate(
             {
-                "summary": data["allowed_summaries"][0],
-                "evidence_ids": data["evidence_ids"],
+                "answer_goal": "Answer the fixture question using the supplied findings.",
+                "paragraphs": draft_parts(data["facts"]["historical.candidate"]["text"] + "."),
+                "evidence_ids": [],
+                "fact_ids": ["historical.candidate"],
                 "limitations": [],
             }
         )
@@ -69,6 +72,47 @@ class ConnectionAudit:
 
     def save(self, state):
         save_audit(self.connection, state)
+
+
+def test_followup_reads_real_final_audit_and_preserves_prior_row(graph_case, monkeypatch):
+    from bottleneck_analyzer.workflows.context import context_row, resolve_context
+
+    connection, config = graph_case
+    llm = FixtureLLM(QuestionIntent.CONSTRAINT_OUTPUT_LOSS)
+    workflow = InvestigationWorkflow(
+        Mock(),
+        settings=AppSettings(_env_file=None),
+        llm=llm,
+        audit=ConnectionAudit(connection),
+    )
+    first = workflow.run(
+        InvestigationRequest(
+            question="Which station limits output?",
+            scope={"dataset": config.name},
+        )
+    )
+    before = connection.scalar(
+        select(InvestigationAudit.state).where(InvestigationAudit.id == first.investigation_id)
+    )
+    monkeypatch.setattr(
+        "bottleneck_analyzer.workflows.graph.load_conversation",
+        lambda engine, previous, scope, context: resolve_context(
+            previous, scope, context, lambda identifier: context_row(connection, identifier)
+        ),
+    )
+    followup = workflow.run(
+        InvestigationRequest(
+            question="What is its measured output?",
+            scope={"dataset": config.name},
+            previous_investigation_id=first.investigation_id,
+        )
+    )
+    assert followup.audit_id == followup.investigation_id
+    assert len(workflow.latest.conversation_context) == 1
+    assert workflow.latest.conversation_context[0].investigation_id == first.investigation_id
+    assert before == connection.scalar(
+        select(InvestigationAudit.state).where(InvestigationAudit.id == first.investigation_id)
+    )
 
 
 @pytest.fixture

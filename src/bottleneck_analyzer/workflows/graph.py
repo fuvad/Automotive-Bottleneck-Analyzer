@@ -8,6 +8,7 @@ from langsmith import tracing_context
 from sqlalchemy.engine import Engine
 
 from bottleneck_analyzer.agents.analytics import AnalyticsAgent
+from bottleneck_analyzer.agents.composition import CompositionValidationError
 from bottleneck_analyzer.agents.contracts import (
     ExecutionError,
     ExecutionEvent,
@@ -35,9 +36,9 @@ from bottleneck_analyzer.workflows.audit import (
     PostgresAudit,
     load_context,
 )
+from bottleneck_analyzer.workflows.context import load_conversation
 from bottleneck_analyzer.workflows.validation import (
     render,
-    safe_introductions,
     summarize,
     validate_plan,
     validate_results,
@@ -107,6 +108,8 @@ class InvestigationWorkflow:
                         "LLM unavailable or output invalid; verify LLM_PROVIDER, LLM_MODEL "
                         "and LLM_API_KEY."
                         if isinstance(exc, LLMUnavailable)
+                        else exc.public_message
+                        if isinstance(exc, CompositionValidationError)
                         else f"{name} did not return a valid result; investigation is incomplete."
                     ),
                 )
@@ -258,7 +261,7 @@ class InvestigationWorkflow:
             return {"response": response}
         validate_results(state)
         ids = [e.evidence_id for e in state.knowledge.retrieval.evidence] if state.knowledge else []
-        explanation = self.planner.explain(state, safe_introductions(state), ids)
+        explanation = self.planner.explain(state, ids)
         warnings = [*state.warnings, *state.analytics.warnings, *state.analytics.overall.warnings]
         incomplete = False
         if state.knowledge:
@@ -310,7 +313,11 @@ class InvestigationWorkflow:
             outcome=outcome,
             status=InvestigationStatus.BLOCKED,
             answer=state.clarification
-            or "Investigation incomplete. Inspect the failure before using partial results.",
+            or (
+                "I couldn't finish validating the answer. " + errors[-1].message
+                if errors and errors[-1].category == "CompositionValidationError"
+                else "Investigation incomplete. Inspect the failure before using partial results."
+            ),
             historical=summarize(state) if state.validation_status == "validated" else None,
             evidence=state.knowledge,
             simulation=state.simulation,
@@ -359,6 +366,13 @@ class InvestigationWorkflow:
                 "simulation_timeout_seconds": self.settings.simulation_timeout_seconds,
             },
         )
+        if request.previous_investigation_id is not None:
+            turns, notices = load_conversation(
+                self.engine, request.previous_investigation_id, scope, context
+            )
+            state.conversation_context = turns
+            state.conversation_warnings = notices
+            state.warnings.extend(notices)
         self.latest = state
         try:
             self.audit.create(state)

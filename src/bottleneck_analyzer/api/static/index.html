@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Automotive Bottleneck Analyzer</title>
+<link rel="stylesheet" href="/static/styles.css">
+<script type="module" src="/static/app.mjs"></script>
+</head>
+<body>
+<div class="chat-app">
+<header class="topbar">
+  <div class="brand"><span class="logo" aria-hidden="true">A</span><div><strong>Automotive Bottleneck Analyzer</strong><span class="muted">Local workspace · Synthetic data</span></div></div>
+  <button id="new-chat" type="button" class="secondary">New chat</button>
+</header>
+<section class="scopebar" aria-label="Scope for your next question">
+  <label>Dataset<select id="dataset"><option value="">Loading datasets…</option></select></label>
+  <label>From (UTC)<input id="start" type="datetime-local" step="1"></label>
+  <label>To (UTC, exclusive)<input id="end" type="datetime-local" step="1"></label>
+</section>
+<main id="conversation" class="workspace" aria-label="Current conversation">
+  <section id="welcome"><span class="eyebrow">BODY SHOP INTELLIGENCE</span><h1>What would you like to understand?</h1><p>Ask about output, constraints, causes, or a defined what-if. Follow the evidence.</p><div id="examples"></div></section>
+  <div id="thread" role="log" aria-label="Questions and answers"></div>
+</main>
+<footer class="composer-area">
+  <div id="message" role="status" aria-live="polite"></div>
+  <button id="refresh" type="button" class="text-button" hidden>Reconnect · check saved progress</button>
+  <form id="question-form">
+    <label class="sr-only" for="question">Your question</label>
+    <textarea id="question" rows="2" required minlength="3" maxlength="2000" placeholder="Ask a question, or follow up on the answer…"></textarea>
+    <button id="submit" class="primary" type="submit">Send <span aria-hidden="true">↑</span></button>
+  </form>
+  <p class="composer-note">Remembers the last 5 exchanges in this chat. Advisory analysis; human review is required before operational changes.</p>
+</footer>
+</div>
+</body></html>

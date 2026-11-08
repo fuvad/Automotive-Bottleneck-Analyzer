@@ -7,9 +7,9 @@ Status values used throughout this roadmap:
 - **Completed** — implementation and the relevant checks have been executed successfully.
 - **Blocked** — progress is stopped by a concrete dependency, environment issue, or unresolved requirement; the blocker is recorded.
 
-Stages 1–6 are **Completed**, including Stage 2 final acceptance verified through
-Stage 3 output. Stage 7 is **Not Started — ready to begin**; Stage 8 remains
-**Not Started**.
+Stages 1–7 are **Completed**, including Stage 2 final acceptance verified through
+Stage 3 output. Stage 7 API/UI, audit admission, persisted-result checks, browser
+journeys and preservation are verified. Stage 8 remains **Not Started**.
 
 Implementation completion and final acceptance are tracked separately when an
 acceptance criterion needs a later stage's output. A later stage depends on the
@@ -255,7 +255,7 @@ added; production history, simulation assumptions and analytics are unchanged.
 **Status:** Completed — exactly four agents, controlled LangGraph workflows,
 live OpenAI planning/knowledge/combined execution, durable audit and preservation
 checks verified on 2026-11-08. Full suite: **192 passed**; final focused checks:
-**20 passed**. Stage 7 is ready and remains Not Started.
+**20 passed**. Stage 7 was ready at that handoff; its completion is recorded below.
 
 See [Stage 6 orchestration](design/stage-6-orchestration.md). Eight live planning
 and guard cases passed. The full combined run recomputed 20 paired 30-day
@@ -303,7 +303,47 @@ No dependency, migration, fifth agent, business endpoint or UI was added.
 
 ### Stage 7 — API and local user interface
 
-**Status:** Not started
+**Status:** Completed — the approved evidence-backed chat refinement was verified
+on 2026-11-09: 244 pytest tests, six Node tests and four final Edge checks passed.
+The UI provides one current conversation, small dataset/UTC-period selectors,
+visible composer, View evidence beneath each answer and New chat. Optional
+previous_investigation_id resolves at most five finalized exchanges from existing
+audits. A bounded historical-provenance projection exposes existing measurements
+and source samples. No migration, dependency, queue or additional agent was added.
+A real follow-up completed the causes route with six source records; original
+source data, 2,544 vectors and all nine pre-existing audit rows were preserved.
+This approved refinement supersedes the initial dashboard presentation.
+The subsequent comparison-answer correction is also verified: 101 focused Python
+checks and six Node checks passed. Shift/model/hour findings now appear in the
+answer, with a compact model table, including read-only rendering of old saved
+results. Supporting details remain under View evidence; original audits and
+analytics calculations are preserved.
+The conversational-answer correction is also complete: 267 full-regression checks,
+98 final focused Python checks and six Node checks passed. Answers now lead with
+intent-specific ordinary language; technical labels and completed bookkeeping
+remain under View evidence. Saved audits are projected read-only and unchanged.
+The later concise-evidence presentation is verified by 44 API/runtime/browser
+checks, twelve Node checks and two final desktop/mobile bottleneck checks.
+View evidence now contains only relevant plain-language support and key figures;
+full technical records remain in the API/audit. Backend behavior is unchanged.
+The subsequent Agent 1 question-specific composition correction is complete:
+114 targeted Python/PostgreSQL checks and twelve Node checks passed, plus a live
+two-question composition check with the configured model. New answers use the
+exact question and qualified follow-up context; checked composed wording survives
+audit/API round trips. This supersedes category templates for new investigations,
+without changing the four-agent routes, numerical tools or database schema.
+
+See [Stage 7 API/UI](design/stage-7-api-ui.md) and the status execution record.
+The existing routing, tool logic and four agents are preserved, with bounded
+conversation context added to the planner. Initial audit commit gates
+HTTP admission and graph execution; timeout/disconnect cannot release an active
+worker's slot. Only persisted events are exposed. Final results require matching
+persisted response/audit IDs. Process-local execution, reconnect, uncertainty after
+restart and shutdown draining are explicit. Loopback/Host/Origin boundaries,
+safe source rendering, bounded projections and sanitized errors are verified.
+All original public records, four audits, 2,544 vectors, saved Stage 3 reports and
+protected Stage 1–6 source/dependency/migration files match preservation checks.
+No new dependency or migration was introduced; Alembic remains `0002`.
 
 **Objective:** Expose the controlled investigation workflow through a lightweight local web application that supports questions, clarification, evidence, simulation comparison, assumptions, uncertainty, and human review.
 
@@ -452,8 +492,8 @@ When blocked, record the specific missing dependency, attempted checks, impact o
 
 ### Functional workflow
 
-- [ ] Local web interface accepts a production-engineer question and returns an answer-first response.
-- [x] The backend workflow supports all four question groups: (1) constraint and output loss, (2) shift/model/time segmentation, (3) causes and evidence, and (4) 30% robot-fault what-if with possible constraint movement. Interface demonstration remains Stage 7.
+- [x] Local web interface accepts a production-engineer question and returns an answer-first response. Fixture journeys and existing live-combined saved-result rendering verified.
+- [x] All four question groups and combined investigation are exposed through the API/UI; browser journeys use controlled fixtures and backend regression retains real computations. No paid/production simulation rerun during Stage 7 is claimed.
 - [x] Responses include key metrics, evidence IDs, linked evidence, assumptions, uncertainty, limitations, and human-review guidance.
 - [x] Historical findings, recorded causes/associations, supported hypotheses, and simulated predictions are labeled distinctly.
 - [x] Investigation ID, question, scope, plan, tool results, records, model/data versions, scenario parameters, seeds, validation, evidence IDs, and final answer are auditable.
@@ -494,7 +534,7 @@ When blocked, record the specific missing dependency, attempted checks, impact o
 - [x] Retrieval uses direct links first, then station/time filters, PostgreSQL full-text search, and pgvector similarity; results merge and deduplicate.
 - [x] Evidence includes source IDs, timestamps, stations, incident links, document versions, and direct/inferred relationship labels.
 - [ ] Tests cover manual JPH/design gap, conservation, buffers, faults/repairs, shifts, both 30% methods, unchanged non-target parameters, seeds, retrieval relevance/traceability, misleading notes, missing sensors, planner scope, clarification, and unsupported requests.
-- [ ] Human review is shown before acting on recommendations; no production control or automatic work-order creation exists.
+- [x] Human review is shown before acting on recommendations; no production control or automatic work-order creation exists.
 
 ### Documentation and presentation
 
@@ -503,7 +543,7 @@ When blocked, record the specific missing dependency, attempted checks, impact o
 - [ ] Architecture diagram covers user, all four agents, data stores, memory/state, all listed plant systems, simulation, and human approval.
 - [ ] Production placement explains edge collection/buffering, sensitive on-premise connectors/analytics, approved cloud LLM/reporting, secure movement, cloud-outage local continuation, cloud-feature unavailability, and later synchronization.
 - [ ] Presentation is rehearsed for 20 minutes: context 2, architecture/agents 4, data/bottleneck/simulation 4, live demo 7, guardrails/limitations/production path 3, followed by 10 minutes of Q&A.
-- [ ] Example questions and clearly labeled saved outputs are available as fallback for external model-service interruption.
+- [x] Example questions and clearly labeled saved outputs are available as fallback for external model-service interruption.
 
 ## Final verification against the implementation plan
 

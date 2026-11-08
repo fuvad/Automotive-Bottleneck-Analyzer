@@ -4,10 +4,10 @@
 
 - **Project name:** Automotive Bottleneck Analyzer
 - **Overall status:** In Progress
-- **Current stage:** Stage 7 — API and Local User Interface (Not Started — ready to begin)
+- **Current stage:** Stage 7 — API and Local User Interface (Completed; Stage 8 Not Started)
 - **Stage 2:** Implementation and Final Acceptance Completed
 - **Stage 3:** Completed
-- **Last updated:** 2026-11-08
+- **Last updated:** 2026-11-09
 - **Source of truth:** [`implementation-plan.md`](implementation-plan.md) and [`implementation-roadmap.md`](implementation-roadmap.md)
 
 ## Stage status
@@ -20,7 +20,7 @@
 | Stage 4 — Historical Analytics and Bottleneck Candidate Identification | Completed | Read-only metrics, segmentation, source references, candidates, persisted reference comparisons and final 89-test suite passed. |
 | Stage 5 — Knowledge Retrieval and Evidence Linking | Completed | Live semantic acceptance closed: 2,544 vectors, 17/17 live checks, source-fact preservation and final 125-test suite passed. |
 | Stage 6 — Four-Agent Implementation and LangGraph Orchestration | Completed | 192 tests; 20 final focused checks; 8 live planning/guard cases; complete live combined workflow and preservation audit passed. |
-| Stage 7 — API and Local User Interface | Not Started | Ready to begin using verified Stage 6 contracts/workflow. |
+| Stage 7 — API and Local User Interface | Completed | Chat refinement verified: 244 pytest tests, six Node tests, four final Edge checks, real follow-up context and original-record preservation. |
 | Stage 8 — Testing, Validation, Documentation, and Presentation | Not Started | Waiting for the implemented vertical workflow. |
 
 ## Completed tasks
@@ -33,8 +33,8 @@
 - Added `/health` and `/health/database` endpoints with startup/shutdown logging and tracing-disabled operation.
 - Added isolated foundation tests for settings, health endpoints, missing database configuration, and shared contract validation.
 
-Stages 1–6 are complete. Stage 3's verified simulation datasets close Stage 2 final
-acceptance. Stage 7 is ready and has not started. The execution records below
+Stages 1–7 are complete. Stage 3's verified simulation datasets close Stage 2 final
+acceptance. Stage 8 has not started. The execution records below
 retain the earlier pending state and the final verification evidence.
 
 ## Pending tasks
@@ -57,7 +57,7 @@ retain the earlier pending state and the final verification evidence.
 - [x] Implement deterministic historical analytics and candidate identification.
 - [x] Implement evidence ingestion, exact/lexical/vector retrieval, linking, and qualified cause assessment.
 - [x] Implement exactly four agents and controlled LangGraph workflows.
-- [ ] Implement the read-only API and local web interface.
+- [x] Implement and verify the read-only API and local web interface.
 - [ ] Complete validation, documentation, packaging, presentation, and rehearsal.
 
 ## Validation commands and actual results
@@ -972,3 +972,603 @@ Human review remains required and no operational approval was fabricated.
 
 Stage 6 is **Completed**. Stage 7 can safely begin using the validated public
 workflow and response contracts. Stage 7 and Stage 8 were not implemented.
+
+## Stage 7 execution record — 2026-11-08
+
+**Status: Completed. Stage 8 remains Not Started.**
+
+Implemented only the approved Stage 7 plan and its admission/security revisions.
+Re-read the project instructions, plan, roadmap, status, Stage 2–6 design material,
+source contracts, audit lifecycle, tests and dependency configuration. The working
+tree was clean at entry; the existing Stage 6 implementation was preserved.
+No reset, discard, database recreation, migration, indexing, reseeding or Git commit
+was performed. No dependency or lock-file change was necessary.
+
+### Implemented and verified
+
+- [x] Thin FastAPI endpoints around the unchanged `InvestigationWorkflow.run()`.
+- [x] Actual dataset/options reads, bounded saved history, investigation submission,
+  saved progress, confirmed results and process-local submission reconciliation.
+- [x] One bounded executor/slot, fresh workflow per investigation, occupied-slot
+  rejection and no second durable queue or audit store.
+- [x] Delegate initial audit creation returns after transaction exit; admission
+  waits outside the transaction. Graph execution requires accepted admission.
+- [x] Deterministic commitment, late commitment, timeout/disconnect, commit-uncertainty,
+  duplicate-key, slot retention, final-save failure and shutdown-draining tests.
+- [x] Persisted post-node events only, without invented percentages, active-agent
+  claims, node-start times or updated-at fields.
+- [x] Matching persisted investigation/response/audit IDs required before publishing
+  final results; compose checkpoints alone are insufficient.
+- [x] All five workflow outcomes preserved independently from HTTP status.
+- [x] Loopback-only supported launcher, one worker, no reload or proxy trust;
+  Host/Origin checks, restrictive same-origin policy, JSON/body limits and safe errors.
+- [x] Lightweight native HTML/CSS/JavaScript interface, question examples, actual
+  metadata/scope, explicit scenarios, reconnect, saved history and expandable evidence.
+- [x] Historical metrics, retrieved evidence/qualified interpretations, simulation
+  uncertainty and final interpretation shown separately with human review.
+- [x] Source text rendered with text nodes; protected CSP and asset boundaries;
+  raw metadata/file paths, vectors and internal state excluded from public results.
+- [x] Existing audit opened through the API and actual UI without rerunning work.
+- [x] Complete regression suite, Node tests, startup, lint, compilation, Poetry,
+  Alembic and exact original-data/protected-file preservation checks passed.
+
+### Commands and actual results
+
+All Python commands used the existing Windows `.venv`. Full-suite execution used
+elevated tool access because Edge GPU subprocesses could not run inside the tool
+sandbox. No browser framework or driver was installed.
+
+| Executed command/check | Actual result |
+| --- | --- |
+| `STAGE2_TEST_POSTGRES=1`, `STAGE7_TEST_SAVED_BROWSER=1`, `.\.venv\Scripts\python.exe -m pytest -q --tb=short` | **229 passed in 386.07 seconds**, exit 0; no skips. Includes all 192 pre-existing tests and 37 Stage 7 tests. |
+| Focused Stage 7 unit + PostgreSQL tests | **35 passed in 57.99 seconds**, exit 0. |
+| `.\.venv\Scripts\python.exe -m pytest tests/ui/test_browser.py -q --tb=short` during fixture-browser development | **1 passed in 4.35 seconds**, exit 0. Both browser tests subsequently passed in the complete suite with saved-browser opt-in enabled. |
+| `node --test tests/ui/client.test.mjs` | **4 passed**, 0 failed/skipped. Tests request construction, GET-only polling/reconnect, all outcomes/metric separation and errors/backoff. |
+| `.\.venv\Scripts\ruff.exe check . --output-format concise` | **Passed**, all checks passed. |
+| `.\.venv\Scripts\python.exe -m compileall -q src tests alembic scripts` | **Passed**, exit 0. |
+| `.\.venv\Scripts\python.exe -m poetry check` | **Passed**, `All set!`. |
+| `.\.venv\Scripts\python.exe -m alembic check` | **Passed**, no new upgrade operations detected. |
+| `.\.venv\Scripts\python.exe -m alembic current` | **0002 (head)**, unchanged. |
+| API/runtime/result-schema/application imports | **Passed**. |
+| Existing `python -m bottleneck_analyzer.workflows.cli --help` | **Passed**, existing CLI preserved. |
+| Supported `python -m bottleneck_analyzer.api.cli`, subprocess with temporary loopback port | **Passed** over actual HTTP: `/health`, `/`, `/static/app.mjs`, `/api/datasets`, `/health/database` all HTTP 200. Child had no accepted work and was terminated after the smoke check; accepted-work draining is verified separately by the runtime test. |
+| `python scripts/stage7_acceptance.py --before <initial-snapshot> --saved-audit b8291895-7348-429e-b84c-fb33992dea4e --report data/processed/stage7/acceptance-v1.json` | **Passed**, every preservation check true; saved status/result HTTP 200 and database/vector health healthy. |
+
+Full-suite command:
+
+```powershell
+$env:STAGE2_TEST_POSTGRES='1'
+$env:STAGE7_TEST_SAVED_BROWSER='1'
+.\.venv\Scripts\python.exe -m pytest -q --tb=short
+Remove-Item Env:STAGE2_TEST_POSTGRES
+Remove-Item Env:STAGE7_TEST_SAVED_BROWSER
+node --test tests/ui/client.test.mjs
+```
+
+Early checks found a test-fixture optional-category mismatch, JSONB path operand
+typing/null-response handling, and a Windows UTF-8 browser fixture read issue.
+These were corrected before the full passing suite. The initial sandboxed Edge
+attempt failed on GPU subprocess access; execution outside the sandbox succeeded.
+These failures are not counted as passing acceptance. No separate type checker or
+unperformed manual browser check is claimed.
+
+### Acceptance scope and preservation
+
+Browser fixtures exercised four question groups plus combined, all five outcomes,
+source HTML safety, evidence expansion, saved-result opening and refresh without
+another POST. PostgreSQL HTTP integration used the actual Stage 6 graph with
+fixture LLMs for historical, segmentation and causes. Existing regression tests
+continue to exercise simulation/combined routing and both intervention mechanisms.
+All new database writes were in rollback-only isolated schemas.
+
+The PostgreSQL admission fixture uses a real SAVEPOINT release under the outer
+rollback; it proves transaction-context exit before the admission gate, not an
+independent durable commit. The production adapter delegates unchanged
+`PostgresAudit.create()` and waits only after its transaction context returns.
+The real existing committed audit was independently read through API/browser.
+
+The saved live combined audit remains
+`b8291895-7348-429e-b84c-fb33992dea4e`. Actual API/browser rendering preserves
+**46.88 historical JPH**, **46.25588888888889 simulated baseline mean**, six source
+records, uncertainty and the six saved component events. The final public result
+is **45,150 bytes**, with raw per-run simulation arrays/configuration copies
+excluded and the complete original audit unchanged.
+
+Per the user's explicit restriction, Stage 7 made **no paid provider calls and no
+new production simulation run**. Saved-result acceptance is labeled as such; no
+fresh live combined investigation is claimed.
+
+Preservation compared exact row counts and order-independent full-row digests for
+all **22 public tables**, including Alembic and all **four original audits**.
+Every comparison matched. Thus all 21 business tables, three datasets, 555,714
+source records, 2,544 embeddings/model identities, source links, simulation runs,
+model configurations and audit records remain unchanged. No new public audit was
+created during acceptance. Temporary test-schema count is **zero**.
+
+Every original protected source file under Stage 1–6, migration/dependency/lock
+file, local `.env` digest and saved Stage 3 report SHA-256 matched the entry
+snapshot, except the explicitly approved `main.py` API wiring/error sanitization.
+The original plan checksum remains
+`AA250999107FDBFDC56F88DD6E91AC3DBCAAD41E01B46BB634EF71A9B7A6AD1D`.
+No production data was regenerated or embedding field changed. Prior Stage 4/5/6
+behavior is also covered by the complete passing regression suite.
+
+### Files and decisions
+
+Created under `src/bottleneck_analyzer/api/`:
+`cli.py`, `settings.py`, `runtime.py`, `repository.py`, `schemas.py`, `routes.py`,
+`security.py`, and `static/{index.html,styles.css,app.mjs,client.mjs,render.mjs}`.
+The existing initializer was preserved.
+
+Created `tests/unit/test_api.py`, `tests/unit/test_api_runtime.py`,
+`tests/integration/test_api.py`, `tests/ui/{test_browser.py,client.test.mjs,browser-driver.mjs}`,
+`scripts/stage7_acceptance.py`, and `docs/design/stage-7-api-ui.md`.
+
+Modified only `src/bottleneck_analyzer/main.py`, `.env.example`, README, roadmap
+and this status document among existing files. No Stage 6 business logic, existing
+test, dependency, migration or actual secret configuration was modified.
+Ignored reports live under `data/processed/stage7/`. No Git commit was made.
+
+### Limits and handoff
+
+No Stage 7 acceptance blocker remains. Execution and submission reconciliation
+are process-local, bounded and not resumable across restart. A lost response does
+not prove cancellation; admission may need reconciliation or saved-history review.
+Normal shutdown can wait several minutes for accepted work. Public result/text
+projections are bounded and disclose truncation; original audits remain authoritative.
+
+The original health probes retain Host compatibility while UI/business/docs/static
+routes enforce local authority/Origin checks. The supported launcher remains
+loopback-only. This is not a remotely exposed multi-user deployment or an
+authentication system. Retrieved text and synthetic model results remain advisory.
+
+The original Day 1 hours 7–8 mapping and complete two-day schedule are unchanged.
+**Stage 7 is Completed. Stage 8 remains Not Started.**
+
+## UI refinement follow-up — 2026-11-08
+
+**Completed — implementation, full regression and browser acceptance verified.**
+
+The user approved the UI plan and explicitly limited application changes to
+`api/static/{index.html,styles.css,app.mjs,render.mjs}` and a CSS MIME correction
+in `main.py`, with existing tests and relevant documentation allowed. Existing
+uncommitted Stage 7 work was retained. No backend business logic, API contracts,
+request construction, audit lifecycle, dependencies, migrations or secret settings
+were changed. Stage 8 remains Not Started.
+
+### Root cause and changes
+
+The stylesheet returned HTTP 200 with `application/x-css` from the Windows MIME
+lookup. Edge explicitly rejected it under strict MIME checking and fell back to
+default typography/layout. `main.py` now registers `.css` as `text/css` before
+the existing static mount. The running local server was restarted only after
+checking that no investigations were active; HTTP verification confirms
+`text/css; charset=utf-8`, original CSP and `nosniff`.
+
+The dashboard uses white panels, navy text, blue accents, consistent spacing and
+responsive layout. It adds a professional header, category selection, editable
+default question, collapsed advanced scope/scenario options, clear primary action,
+copyable ID, saved-event badges, executive summary, three historical metric cards,
+readable assessments, expandable evidence, modeled statistics/intervals and human
+review. Raw JSON presentation was replaced by labeled lists, facts and tables.
+The entire original answer remains in a disclosure. Numbers are formatted only;
+original precision remains in element titles/data attributes and the audit.
+
+Missing historical rankings and independent design capacity are disclosed rather
+than invented. Saved-history dataset names use the existing catalog and status
+uses bounded existing GET requests (at most three concurrent). Submission keys,
+request construction, HTTP handling, polling, reconciliation and refresh behavior
+are preserved; no automatic POST retry or new endpoint was introduced.
+
+### Executed verification so far
+
+- API MIME assertion and existing API/runtime units: **30 passed in 2.35 seconds**.
+- `node --test tests/ui/client.test.mjs`: **4 passed**, no failures or skips.
+- Final focused Edge desktop/mobile suite: **4 passed in 57.24 seconds**.
+- Ruff: **all checks passed**. Compilation and JavaScript syntax checks passed.
+- Poetry validation: **All set!** Alembic consistency passed at **0002 (head)**.
+- Exact preservation report `data/processed/stage7/ui-after-v1.json`: **all checks
+  true**, including all 22 public tables, five audits present at UI-task entry,
+  three datasets, 555,714 source records, 2,544 vectors, saved Stage 3 reports,
+  original plan, secrets/dependencies and protected backend files. A stricter
+  source check allowed only the five approved application paths and found no
+  other source/config/report changes. There were zero leftover test schemas.
+
+Browser checks use production-served static MIME/security headers, computed
+styles, exact CSS viewports **1440×1200** and **390×1000**, no document overflow,
+form labels, visible focus, native Tab/Enter activation, sample button/status
+contrast of at least 4.5:1, all question groups/outcomes, saved events, refresh and
+reconnect without duplicate POST, evidence expansion and distinct metric values.
+Real saved-result checks make GETs only. No paid model request, production
+simulation, reseeding or indexing was performed for this UI task.
+
+The original browser window-size flag cropped a wider layout on Windows. The
+updated harness uses Edge's debugging protocol through Node's built-in WebSocket
+to set/verify the actual viewport and collect console/runtime/resource evidence.
+No browser dependency was installed. Initial harness failures exposed inactive
+focus emulation, a Windows debugging-file write race, an incomplete Enter key
+sequence and a test submission racing initialization. These were corrected in
+the test harness, not by changing application lifecycle behavior. The first full
+regression run reported **227 passed, 4 failed in 358.84 seconds**, with all four
+failures in the then-incomplete keyboard test. That is not a passing full-suite
+result; the final corrected full run is recorded below.
+
+The user explicitly declined an extra favicon asset, retaining the file allowlist.
+The existing `/favicon.ico` **404 remains** and is reported separately. No CSS,
+JavaScript or application runtime errors were observed in the passing browser
+checks. The real saved-result browser proxy preserves the actual favicon 404;
+it does not mask that exception as successful asset delivery.
+
+Screenshots and JSON browser evidence are under ignored
+`data/processed/stage7/ui/`: `actual-saved-1440.png`,
+`actual-saved-1440-results.png`, `actual-saved-390.png`,
+`actual-saved-390-results.png`, plus controlled-fixture screenshots and reports.
+The screenshots were visually inspected; mobile dimensions and reflow were
+verified rather than assumed from command-line flags. This is not a full manual
+accessibility audit or a new live-model acceptance claim.
+
+### Final UI verification
+
+| Exact command / check | Actual result |
+| --- | --- |
+| `STAGE2_TEST_POSTGRES=1`, `STAGE7_TEST_SAVED_BROWSER=1`, `UI_SCREENSHOT_DIR=data/processed/stage7/ui`, `.\.venv\Scripts\python.exe -m pytest -q --tb=short` | **231 passed in 360.11 seconds**, exit 0, no skips. Includes all existing regression checks and four explicit-viewport Edge tests. |
+| `STAGE7_TEST_SAVED_BROWSER=1`, `.\.venv\Scripts\python.exe -m pytest tests/ui/test_browser.py -q --tb=short` | **4 passed in 57.24 seconds** in the final focused run; the complete suite subsequently passed with extension isolation enabled. |
+| `.\.venv\Scripts\python.exe -m pytest tests/unit/test_api.py tests/unit/test_api_runtime.py -q --tb=short` | **30 passed in 2.35 seconds**. |
+| `node --test tests/ui/client.test.mjs` | **4 passed**, no failures/skips. |
+| `node --check src/bottleneck_analyzer/api/static/app.mjs`, same for `render.mjs` and `tests/ui/browser-driver.mjs` | **Passed**, exit 0. |
+| `.\.venv\Scripts\ruff.exe check . --output-format concise` | **Passed**, all checks passed. |
+| `.\.venv\Scripts\python.exe -m compileall -q src tests alembic scripts` | **Passed**, exit 0. |
+| `.\.venv\Scripts\python.exe -m poetry check` | **Passed**, `All set!`. |
+| `.\.venv\Scripts\python.exe -m alembic check` / `current` | **Passed**, no new operations; **0002 (head)**. |
+| Live `GET /static/styles.css` on localhost:8000 | HTTP **200**, **text/css; charset=utf-8**, original CSP and `nosniff`. |
+
+An intermediate full run reported **230 passed, 1 failed in 318.18 seconds**:
+Edge emitted an isolated-world CSP diagnostic from a pre-installed browser
+extension. Browser startup now disables extensions/component background pages.
+Diagnostics belonging to extension URLs or their distinct extension-manifest
+CSP are retained separately as browser-environment evidence. The application's
+served CSP is unchanged; any application CSP violation still fails acceptance.
+The final 231-pass run supersedes both earlier failed full runs.
+
+Post-suite preservation was executed again using:
+
+```powershell
+.\.venv\Scripts\python.exe scripts/stage7_acceptance.py --before data/processed/stage7/ui-before.json --saved-audit b8291895-7348-429e-b84c-fb33992dea4e --report data/processed/stage7/ui-final-acceptance.json
+```
+
+**Passed**, exit 0: all original public-table/audit digests, protected files and
+embedding counts match, zero test schemas remain, and PostgreSQL/pgvector health
+is healthy. Saved-result status and result return HTTP 200 with the original
+46.88 historical JPH, separate 46.25588888888889 simulated mean and six evidence
+records. No new investigation record or provider call was created by this check.
+
+The actual saved-result browser reports confirm the exact dimensions
+1440×1200 / 390×1000, `overflow: false`, successful native keyboard evidence
+activation and empty application error lists. Known favicon and any external
+extension diagnostics are separate report fields. Screenshots and JSON evidence
+were regenerated by the passing full suite. No manual browser acceptance or paid
+LLM execution is implied by these automated checks.
+
+UI-task files changed: `src/bottleneck_analyzer/main.py` (MIME registration only),
+the four approved static files, `tests/unit/test_api.py`,
+`tests/ui/{test_browser.py,browser-driver.mjs}`, README, this status record and
+`docs/design/stage-7-api-ui.md`. No additional application file was introduced.
+The exact `client.mjs` request-helper SHA-256 matches the UI entry snapshot.
+Other source/configuration/report digests also match outside the five approved
+application paths. Existing uncommitted Stage 7 work was not discarded or reset.
+
+Remaining limits: no complete historical ranking or independent design-capacity
+value in the unchanged API contract; process-local execution behavior remains;
+favicon 404 left unchanged at the user's explicit instruction. No Git commit was
+created. **UI refinement is Completed; Stage 8 remains Not Started.**
+
+## Local server network incident — 2026-11-08
+
+The user reported planner failure for investigation
+`12441ac6-0bd4-406b-bbd8-4e0e9fbc7a7c`. The saved outcome was `failed`, with
+`LLMUnavailable`, before analytics. Provider/model/key presence were configured;
+no credential was printed. A model-access GET from the sandbox failed with
+Windows `PermissionError`, errno 13 / WinError 10013. The identical authenticated
+GET outside the sandbox returned HTTP 200 without generating model output.
+
+The server had been launched in the sandbox, which blocked its outbound model
+connection. After verifying no API investigation was active, the agent stopped
+that server and relaunched the unchanged supported CLI outside the sandbox,
+still on loopback port 8000 with one worker and no reload. No application code,
+credential or existing audit record was modified.
+
+A new live API investigation for the user's Constraint question was submitted
+once and confirmed as completed:
+`cbcd4aa4-1aba-4342-a7da-a1addbeebb18`. HTTP admission was 202; saved planner,
+analytics, validation and compose events completed; errors were empty. Polling
+after admission measured 42.64 seconds. Actual results were 46.88 historical JPH,
+Hemming leading and a 13.119999999999997 JPH design gap (13.12 when displayed).
+The new run used the configured real LLM and created its own audit/report; it
+performed no simulation or source-data/embedding writes. The older failed audits
+remain failed, preserving what actually happened.
+
+The earlier UI-only acceptance deliberately used fixture models and saved results;
+this subsequent live operational check verifies model connectivity in the
+running server context. Local report:
+`data/processed/stage7/network-fix-cbcd4aa4-1aba-4342-a7da-a1addbeebb18.json`.
+Users can reopen this completed result or submit a new question. Reconnect does
+not rerun an older failed investigation. Stage 8 remains Not Started.
+
+
+## Evidence-backed chat refinement ? 2026-11-09
+
+Implementation, regression, browser acceptance and final preservation verification
+are complete. Stage 8 remains Not Started.
+
+Replaced the dashboard/category/advanced/history presentation with a single
+conversation, dataset and UTC-period selectors, visible composer, examples and
+New chat. Each answer has View evidence, including the original answer, qualified
+source passages, historical measurement references/source samples, simulation
+uncertainty and saved workflow checkpoints. Source/model content remains text
+only. No metrics are recomputed in the browser and no extra answer model is used.
+
+Added optional previous_investigation_id, a typed bounded conversation summary,
+and a five-link read-only audit resolver. Context requires confirmed final IDs,
+the same dataset/content version and period; explicit new scope/questions win.
+Failed/unsupported/clarification exchanges cannot supply factual answer content.
+Refresh restores only the current chat via saved identifiers and GET requests.
+New chat clears browser context without deleting audits or cancelling work.
+Admission keys, commit gating, polling/reconciliation, final audit confirmation,
+loopback/Host/Origin checks, CSP, safe rendering and the CSS MIME fix are retained.
+
+Validation completed so far:
+
+- Existing focused orchestration/API/runtime tests: 77 passed.
+- New conversation tests: 11 passed, including five-exchange limit, invalid and
+  unconfirmed parents, dataset/version/period isolation, cycles, non-factual
+  outcomes, planner handoff and no audit creation for invalid context.
+- Updated API unit tests: 21 passed, including provenance bounds/source counts.
+- PostgreSQL API/orchestration integration tests: 13 passed in 152.23 seconds,
+  using rollback-only isolated schemas, including real prior-audit lookup and
+  original-audit preservation.
+- Node client tests: 5 passed; import/syntax, request context, GET-only polling,
+  all outcomes and scope-reset behavior verified.
+- Edge chat fixtures plus actual saved-combined rendering: 4 passed in 53.49
+  seconds at 1440?1200 and 390?1000. Verified applied CSS/MIME, no horizontal
+  overflow, visible composer, safe source text, genuine persisted progress,
+  evidence expansion, five outcomes, lost/truncated acceptance reconciliation,
+  follow-up parent, changed-period reset, refresh without duplicate submission,
+  and New chat without deleting fixture audits. Reports/screenshots:
+  data/processed/stage7/chat/. The prior browser run failed on test-fixture
+  behavior (expected injected HTTP error and a premature null DOM lookup);
+  both fixtures were corrected before the passing run.
+- poetry check via the installed environment: All set!
+- Ruff: All checks passed.
+- Python compileall of src/tests: passed.
+- Alembic current: 0002 (head); alembic check: No new upgrade operations detected.
+
+Separate real-provider acceptance: HTTP 202 admitted
+087645f7-04b8-4b93-81e4-28142c392a5e for ?Why is that happening??, linked to the
+previous completed constraint investigation cbcd4aa4-1aba-4342-a7da-a1addbeebb18.
+It completed the causes route with six source records and no errors; planner,
+analytics, knowledge, validation and compose checkpoints all completed. Historical
+JPH stayed 46.88 and the cause remained a supported hypothesis. The new run added
+its own audit only; it performed no simulation, reseeding or embedding indexing.
+Artifacts: data/processed/stage7/chat-live-{accepted,result}.json.
+
+No dependency, migration, queue, service or agent was added. No Git commit created.
+
+
+Final validation for the chat refinement:
+
+| Command / check | Actual result |
+| --- | --- |
+| STAGE2_TEST_POSTGRES=1, STAGE7_TEST_SAVED_BROWSER=1; `.\.venv\Scripts\python.exe -m pytest -q --tb=short` | 244 passed in 366.03 seconds. |
+| `node --test tests/ui/client.test.mjs` | 6 passed, including the added UTC offset regression. |
+| STAGE7_TEST_SAVED_BROWSER=1, UI_SCREENSHOT_DIR=data/processed/stage7/chat; `.\.venv\Scripts\python.exe -m pytest tests/ui/test_browser.py -q --tb=short` | Final 4 passed in 56.81 seconds after the UTC correction; includes contrast, native keyboard and actual saved-result checks. |
+| `.\.venv\Scripts\python.exe -m pytest tests/unit/test_conversation.py -q --tb=short` | Final 11 passed in 1.75 seconds, including exclusion of answer findings from failed/unsupported/clarification context. |
+| `.\.venv\Scripts\python.exe -m poetry check` | All set! |
+| `.\.venv\Scripts\ruff.exe check .` | All checks passed. |
+| `.\.venv\Scripts\python.exe -m compileall -q src tests` and Node syntax checks of app/render/browser-driver | Passed. |
+| `.\.venv\Scripts\python.exe -m alembic current` / `alembic check` | 0002 (head); no new upgrade operations. |
+| Read-only saved combined API/health acceptance | PostgreSQL/vector healthy; 3 datasets; confirmed result HTTP 200; 46.88 historical JPH and 46.25588888888889 modeled baseline retained; 33 historical references; 6 source passages. |
+| Full-row preservation comparison | All original source tables and all nine original audit rows unchanged; 2,544 embeddings unchanged; only the new follow-up audit added; zero remaining test schemas. |
+| Protected-file comparison / `git diff --check` | No unexpected source/configuration/report changes; primary plan, .env, dependency files, migrations, analytics/retrieval/simulation and saved Stage 3 reports preserved; no whitespace errors. |
+
+Screenshot review caught offset-bearing database timestamps being sliced as local
+wall time in UTC selectors. Dataset dates now normalize through toISOString before
+display. The six-test Node run and final four browser checks above ran after that
+correction; the full 244-test run preceded that last JavaScript-only correction.
+Native Edge screenshots show UTC 00:00 boundaries and a visible composer at both
+viewport sizes. Browser application errors are empty; the known favicon 404 is
+recorded separately and remains unchanged per the user's file-allowlist decision.
+
+Changed application files for this refinement: existing static index.html,
+styles.css, app.mjs, render.mjs and client.mjs; agents/contracts.py and planner.py;
+workflows/graph.py; API repository.py and schemas.py. Added workflows/context.py.
+Added tests/unit/test_conversation.py; updated unit API, integration orchestration,
+Node and Edge tests. Updated README, roadmap, status and Stage 6/7 design docs.
+The pre-existing uncommitted Stage 7 changes were preserved.
+
+Limits: context is a bounded summary of five finalized exchanges, not permanent
+trusted memory; older visible messages are excluded from planning. Only the
+current chat is restored from this browser, with no archived-chat UI. Unknown
+admission after process loss cannot be guaranteed or automatically resumed.
+Provider outages still report failure honestly. No source data or simulation
+values were changed, no dependency added, and no Git commit created.
+
+**Chat refinement Completed. Stage 8 remains Not Started. No implementation blocker remains.**
+
+
+## Comparison-answer correction ? 2026-11-09 ? Completed
+
+The reported segmentation question had computed comparisons in its result but an
+overall-line-only answer. Fixed workflows/validation.py to lead segmentation
+answers with stored shift/hour candidate distributions, unresolved groups and
+model-specific candidates. The existing API projection now derives the same
+summary for older saved results without changing their audits or repeating the
+prefix. The chat renders the model comparison table directly beneath the answer;
+full comparison/evidence details stay expandable. Model JPH remains qualified as
+a contribution to mixed-line output; historical candidates are not proven physical
+constraints. No ranking, numerical calculation, routing or source data changed.
+
+Actual verification:
+
+- `.\.venv\Scripts\python.exe -m pytest tests/unit/test_orchestration.py tests/unit/test_api.py tests/unit/test_conversation.py -q --tb=short`: **82 passed in 47.35 seconds**. Added regressions for mixed shift candidates, unresolved/missing segments, model findings, unchanged JPH, and old saved-response projection without audit mutation or duplicate summary prefixes.
+- With STAGE2_TEST_POSTGRES=1, `.\.venv\Scripts\python.exe -m pytest tests/integration/test_orchestration.py tests/integration/test_api.py -q --tb=short`: **13 passed in 126.69 seconds**. Existing real graph/API/audit workflows retain behavior in rollback-only PostgreSQL schemas.
+- With STAGE7_TEST_SAVED_BROWSER=1 and UI_SCREENSHOT_DIR=data/processed/stage7/comparison-fix, `.\.venv\Scripts\python.exe -m pytest tests/ui/test_browser.py -q --tb=short`: **6 passed in 64.13 seconds**. Fixture chat journeys and actual saved combined/segmentation results at 1440?1200 and 390?1000; model comparison is outside collapsed evidence; safe text rendering, keyboard, contrast, overflow, refresh and admission reconciliation retained.
+- `node --test tests/ui/client.test.mjs`: **6 passed**.
+- Ruff, compileall, JavaScript syntax and git diff --check: passed.
+- Read-only check of the user's saved segmentation audit 6fcec308-833a-4161-9270-464389e95e4a: original full-row fingerprint unchanged; projected answer identifies Hemming across 60 dated shifts and Framing for both SUV and Sedan; original 23.246666666666666 / 23.633333333333333 model JPH contributions preserved.
+- Restarted the idle local server and verified HTTP 200 for the corrected saved result. No new investigation, paid model call, simulation, embedding or database write was performed for acceptance. No test schemas remain after the integration run.
+
+This scoped correction ran **101 focused Python checks** plus six Node checks;
+the earlier 244-test full regression remains the previous chat-refinement record,
+not a claim that the full suite was rerun for this correction. Screenshots and
+reports are in ignored data/processed/stage7/comparison-fix/.
+Changed application files: workflows/validation.py, api/schemas.py and
+api/static/render.mjs. Updated the corresponding unit/Edge tests and Stage 7
+design/status/roadmap documentation. No dependency, migration or Git commit added.
+Stage 8 remains Not Started. Refresh the current conversation to see the corrected
+saved answer; rerunning the investigation is unnecessary.
+
+
+## Conversational answer correction ? 2026-11-09 ? Completed
+
+Replaced the shared technical-summary presentation with intent-specific ordinary
+language in workflows/answers.py. Maintenance answers now lead with what the
+linked records suggest and what they do not establish, without unrelated JPH or
+design-gap paragraphs or raw labels such as supported_hypothesis. Robot-fault
+wording requires actual supporting robot-fault records and maintenance work
+orders; a relevant note cannot become an invented component diagnosis. Explicit
+maintenance causes, associations, insufficient evidence and unavailable searches
+remain distinguishable.
+
+What-if answers lead with the actual intervention and estimated output change,
+then explain whether the modeled bottleneck moves and what the confidence
+interval means. Repair duration and failure rate remain separate methods.
+Constraint/segmentation/combined answers retain their relevant findings and
+qualifications. Displayed numbers are readable and rounded; the full-precision
+typed tool results, uncertainty, source references and simulations remain intact.
+Model-filtered output remains a share of mixed-line output, never an exclusive
+capacity claim. Paired statistics and gains are copied, not recalculated by an LLM.
+
+Completed status/copy-ID bookkeeping now lives inside View evidence, leaving
+completed answers as conversational paragraphs. Non-success statuses remain
+visible. The global synthetic/advisory/human-review notice is unchanged; the full
+review notice and durable source citations remain inspectable in evidence.
+
+Both new workflow answers and read-only projections of old saved answers use the
+same presenter. No old audit is rewritten and reopening a result makes no model,
+simulation or embedding call. Agent 1 still uses its existing grounded-language
+interface; no new agent, unconstrained model writer, endpoint, queue, dependency,
+ORM change or migration was added. Analytics/retrieval/simulation services,
+admission, finalization, safe text rendering and five-exchange context are intact.
+
+Actual validation:
+
+- With STAGE2_TEST_POSTGRES=1, STAGE7_TEST_SAVED_BROWSER=1 and UI_SCREENSHOT_DIR=data/processed/stage7/conversational-fix: `.\.venv\Scripts\python.exe -m pytest -q --tb=short` ? **267 passed in 383.09 seconds**. Includes PostgreSQL integration, all workflow outcomes, and ten Edge journeys across fixture chat and real saved combined/segmentation/maintenance/what-if results at desktop/mobile sizes.
+- `.\.venv\Scripts\python.exe -m pytest tests/unit/test_answers.py tests/unit/test_orchestration.py tests/unit/test_api.py tests/unit/test_conversation.py -q --tb=short` ? final **98 passed in 62.38 seconds**. Covers the final maintenance wording/category checks and model-share qualification. Two additional regression cases and their final presentation adjustments were made after the full run collected; they are included in this focused result rather than the earlier 267 count.
+- `node --test tests/ui/client.test.mjs` ? **6 passed**.
+- Final maintenance-only actual-saved Edge checks: **2 passed in 9.54 seconds**. Verified no generic production boilerplate, metadata inside evidence, visible plain-language answer and no overflow/errors at 1440?1200 and 390?1000.
+- Poetry check: All set! Ruff: All checks passed. Python compileall, JavaScript syntax and git diff --check passed.
+- Full-row fingerprint comparison: all **15 original audit rows unchanged**, no new public audit created, and zero test schemas left after rollback-only integration checks. This correction performed no public database writes, reseeding, simulation rerun, embedding indexing or paid model call.
+- Restarted the idle supported local server and verified HTTP 200 for the existing maintenance and what-if results. Both return the conversational wording without rerunning their investigations.
+
+Application files changed: workflows/validation.py, api/schemas.py and
+api/static/render.mjs; added the focused workflows/answers.py presenter. Added
+unit answer regressions; updated orchestration/API and Edge assertions to verify
+human-friendly wording, evidence boundaries and unchanged calculations. Updated
+README, Stage 7 design, roadmap and this status record. Original implementation
+plan, dependency configuration and migrations remain unchanged. Screenshots,
+example projected answers and preservation reports are ignored artifacts in
+data/processed/stage7/conversational-fix/.
+
+No Git commit created. Stage 8 remains Not Started. Refresh the current browser
+conversation to use the new display; existing investigations need not be rerun.
+
+Final saved maintenance/what-if browser recapture: **4 passed in 14.97 seconds**
+at desktop/mobile sizes after the full regression run; screenshots in the same
+conversational-fix artifact directory reflect the final wording.
+
+
+## Concise evidence presentation ? 2026-11-09 ? Completed
+
+Replaced the large audit-style View evidence contents with the main supporting
+facts in ordinary language. Constraint questions show three meaningful station
+signals, the recorded output calculation and reference gap, plus a brief caveat.
+No raw normalized scores/UUID inventories, repeated answer summaries, saved
+workflow checkpoints, irrelevant source/simulation placeholders or long internal
+assumption lists appear in the disclosure. Weak or conflicting support remains
+qualified. Normalized scores are never relabeled as measured percentages.
+
+Other intents show only relevant evidence: up to three diverse/cited source
+excerpts (including a conflicting/excluded record when present), a short paired
+simulation comparison with uncertainty, or a few comparison groups with an
+optional show-all control. Source excerpts keep original wording, timestamps,
+versions and direct/inferred qualifications, with full passage available on
+request. Safe text rendering, copy-ID control, visible failure outcomes, answers,
+submission/polling/context behavior and all existing security protections remain.
+Full technical metadata remains in the unchanged existing API and durable audits.
+No backend, data, dependency, migration or agent change was made for this task.
+
+Application files changed: api/static/render.mjs and styles.css. Updated Edge
+fixtures/assertions and screenshot capture; added tests/ui/evidence.test.mjs for
+plain-language indicator mapping, no invented percentages, source selection,
+contradiction preservation, deduplication/version handling and input immutability.
+README and Stage 7 design/roadmap/status now describe this concise view.
+
+Executed checks:
+
+- With STAGE7_TEST_SAVED_BROWSER=1 and UI_SCREENSHOT_DIR=data/processed/stage7/concise-evidence: `.\.venv\Scripts\python.exe -m pytest tests/unit/test_api.py tests/unit/test_api_runtime.py tests/ui/test_browser.py -q --tb=short` ? **44 passed in 74.16 seconds**, including twelve Edge fixture/saved-result journeys across desktop and mobile. A Python test-string escape warning seen at collection was subsequently corrected.
+- `.\.venv\Scripts\python.exe -W error::SyntaxWarning -m pytest tests/ui/test_browser.py -k constraint_output_loss -q --tb=short` with the same browser flags ? final **2 passed in 15.98 seconds**, no warnings. Actual saved bottleneck evidence contains the key figures, stays below 240 words, and has no visible UUIDs, raw scores or irrelevant sections. Verified desktop 1440?1200 and mobile 390?1000, CSS/MIME, no page overflow, keyboard interaction and no application-console errors.
+- `node --test tests/ui/client.test.mjs tests/ui/evidence.test.mjs` ? **12 passed**.
+- Ruff, JavaScript syntax, Python compilation and git diff --check passed. Stylesheet still served as text/css; updated renderer HTTP 200 from the running app. A server restart was unnecessary for these static changes.
+- Full-row fingerprint comparison ? **all 17 original audits unchanged; count remains 17**. No model/simulation call, embedding write, reseeding or real investigation submission was performed by acceptance.
+
+The full backend regression suite was not repeated for this frontend-only
+presentation change; the earlier full-suite results remain historical records.
+Screenshots, browser reports and preservation checks are ignored artifacts under
+data/processed/stage7/concise-evidence/. In particular,
+actual-saved-constraint_output_loss-{1440,390}-evidence.png shows the open concise
+View evidence section. No Git commit created. Stage 8 remains Not Started.
+
+
+## Question-specific composition ? 2026-11-09 ? Completed
+
+Root cause: the planner was restricted to an enumerated prepared introduction,
+the workflow appended category text, and the API regenerated category text when
+reading the saved answer. The current question and follow-up context therefore
+could not control the complete response.
+
+Agent 1 now drafts the full answer using the exact question, scope, qualified
+five-exchange context and current validated findings. Its structured output
+identifies an answer goal and supporting fact IDs before prose. A focused
+agents/composition.py helper supplies the bounded fact catalogue and checks
+quantities/units, placeholders, selected source references, simulation intervals
+and common unsupported proof claims. One malformed draft can be corrected once;
+there is no repeated retry or silent category-summary fallback. Network/provider
+errors retain their original failure behavior. Numbers are copied from computed
+results, never calculated by the model. These guards do not prove every natural-
+language paraphrase; human review and the existing evidence qualifications remain.
+
+The existing Explanation contract adds optional fact_ids and composition_version.
+The validated version marker and references are stored in the existing JSONB
+audit, without a migration. The renderer preserves the full composed wording, and
+the API does not overwrite versioned answers with a template. Legacy saved
+responses remain unchanged; new questions must be submitted to obtain the new
+composition. No new model/agent, service, endpoint, request field, dependency,
+frontend change, workflow route, numerical calculation, source dataset, retrieval
+or simulation logic was introduced. The original implementation plan is intact.
+
+Actual validation:
+
+- With STAGE2_TEST_POSTGRES=1, `.\.venv\Scripts\python.exe -m pytest tests/unit/test_composition.py tests/unit/test_orchestration.py tests/unit/test_api.py tests/unit/test_conversation.py tests/integration/test_orchestration.py tests/integration/test_api.py -q --tb=short`: **114 passed in 178.82 seconds**. Covers question-specific answers for identical intents/findings, prior-context delivery, invalid quantities/units/fact/source IDs, bounded correction/failure, overclaim rejection, all graph routes, durable audits, and preservation of the composed wording through PostgreSQL/API round trips. Fixtures are scripted; they are not reported as real-model quality evidence.
+- `node --test tests/ui/client.test.mjs tests/ui/evidence.test.mjs`: **12 passed**. The frontend is unchanged.
+- Ruff, compileall, Poetry check and git diff --check passed. Original dependency files, ORM/migrations and analytical/retrieval/simulation services were not modified. No temporary PostgreSQL test schemas remain.
+- Separate live check with configured **gpt-4o-mini**, using a saved completed baseline investigation as read-only findings: the conclusion question returns Hemming and its **13.12 bodies/hour design-reference gap**; the evidence follow-up instead explains processing/fault occupancy, queue accumulation, upstream blocking/downstream waiting and actual station measurements (including **4.91 vehicles average input queue**). The wording is different and passes the same numerical/reference checks as ordinary execution.
+- Early live drafts exposed directly typed figures, mistyped placeholders, unhelpful repetition and an overly strict unused-reference check. Final composition uses an explicit answer goal, observation-first fact ordering, exact computed-value/unit validation and one bounded correction. The accepted live outputs and selected facts are recorded in ignored data/processed/stage7/question-composition/live-composition.json; the verification script performs no database writes.
+- The live check preserved all **21 original full audit rows**; audit count stayed 21. No actual investigation, source-data write, simulation rerun or embedding indexing was performed by that acceptance. Restarted the idle local app only after checking no investigation was active; startup and /health HTTP 200 verified. New app process uses the verified composer.
+
+Application scope: agents/planner.py and contracts.py; new agents/composition.py;
+workflow graph.py call site and validation.py response rendering; API schemas.py
+version guard. Added focused composition tests and updated the existing
+orchestration/API fixtures and persistence assertions. Stage 6/7 design and
+roadmap/status documentation describe the new behavior. No Git commit created.
+Stage 8 remains Not Started. Submit the question again (or a new follow-up) to
+see the new answer; refreshing an old saved response does not regenerate it.

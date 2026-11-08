@@ -16,6 +16,22 @@ those locations rather than inventing a second shared-contract module.
 
 ## Four agents
 
+The approved chat refinement adds optional `previous_investigation_id` to
+`InvestigationRequest`. Existing standalone requests retain their behavior.
+`workflows/context.py` reads at most five finalized, linked audits in a read-only
+transaction before creating the new initial audit. Matching response/audit IDs,
+dataset ID/content hash, period and cycle checks prevent unconfirmed or unrelated
+records from becoming context. A period change omits prior context; another
+dataset/version or invalid parent is rejected before admission.
+
+The planner receives chronological, bounded question/answer summaries, scope,
+outcome, candidate, historical JPH, scenario and qualified evidence labels.
+Failed/unsupported/clarification turns retain the question and clarification but
+no answer findings. Explicit new questions and selected scope take precedence.
+Ambiguous references still clarify. Every follow-up runs the registered tools
+again; hypotheses are not trusted facts. New request/context fields persist in
+the existing JSONB audit, without a migration, queue or fifth agent.
+
 | Module under `src/bottleneck_analyzer/agents/` | Responsibility and boundary |
 | --- | --- |
 | `planner.py` | Agent 1 interprets language, validates the plan against a Python registry, handles clarification and composes a grounded answer. It never calls specialist services itself. |
@@ -133,11 +149,19 @@ are derived from the assessment's known causal/linking limitations. This is
 deliberately extractive interpretation, not autonomous causal discovery. Original
 source text/metadata remains available separately.
 
-Agent 1 selects an introduction and citations from a strict schema enumerating
-the supplied choices. Python renders numerical facts and source citations from
-validated tool results. Unsupported citations, numbers, new causes and summaries
-are rejected. This conservative composition policy
-limits stylistic flexibility but makes the accepted claims inspectable.
+Agent 1 now composes the complete answer using the exact question, bounded
+conversation context and a catalogue of current validated findings. Its structured
+draft identifies the answer goal and supporting fact IDs before writing prose.
+Python checks quantity references or exact computed values with units, source
+references, simulation uncertainty and common causal/constraint overclaims.
+One malformed draft may receive one bounded correction attempt using the same
+facts; repeated invalid output fails composition rather than falling back to a
+category answer. Language-model wording remains subject to human review: these
+checks establish numerical/reference consistency, not proof of every paraphrase.
+The explanation stores fact IDs and question_specific_v1 metadata in existing
+audit JSONB. The final renderer and API preserve its wording instead of appending
+or substituting a category template. Older audits retain their original behavior
+on read; they are not silently regenerated through paid calls.
 
 ## Simulation bounds and uncertainty
 
