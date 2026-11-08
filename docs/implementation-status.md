@@ -4,7 +4,7 @@
 
 - **Project name:** Automotive Bottleneck Analyzer
 - **Overall status:** In Progress
-- **Current stage:** Stage 4 — Historical Analytics and Bottleneck Candidate Identification (Not Started — ready to begin)
+- **Current stage:** Stage 5 — Knowledge Retrieval and Evidence Linking (Not Started — ready to begin)
 - **Stage 2:** Implementation and Final Acceptance Completed
 - **Stage 3:** Completed
 - **Last updated:** 2026-11-08
@@ -17,8 +17,8 @@
 | Stage 1 — Project Foundation and Configuration | Completed | Foundation implementation, local checks, authenticated PostgreSQL connectivity, and pgvector operation verification completed. |
 | Stage 2 — Domain Models, Database Schema, and Synthetic Data Generation | Completed | Final acceptance closed: 30-day simulation dataset loaded/replayed, Framing case verified, authored fixture unchanged. |
 | Stage 3 — Seven-Station SimPy Discrete-Event Simulation | Completed | Simulation, calibration, uncertainty, both interventions, persistence/replay and final 64-test suite verified. |
-| Stage 4 — Historical Analytics and Bottleneck Candidate Identification | Not Started | Ready to begin; required data and simulation interfaces are verified. |
-| Stage 5 — Knowledge Retrieval and Evidence Linking | Not Started | Waiting for Stages 1–4. |
+| Stage 4 — Historical Analytics and Bottleneck Candidate Identification | Completed | Read-only metrics, segmentation, source references, candidates, persisted reference comparisons and final 89-test suite passed. |
+| Stage 5 — Knowledge Retrieval and Evidence Linking | Not Started | Ready to begin; Stages 1–4 are verified. |
 | Stage 6 — Four-Agent Implementation and LangGraph Orchestration | Not Started | Waiting for Stages 1–5. |
 | Stage 7 — API and Local User Interface | Not Started | Waiting for Stage 6. |
 | Stage 8 — Testing, Validation, Documentation, and Presentation | Not Started | Waiting for the implemented vertical workflow. |
@@ -33,8 +33,8 @@
 - Added `/health` and `/health/database` endpoints with startup/shutdown logging and tracing-disabled operation.
 - Added isolated foundation tests for settings, health endpoints, missing database configuration, and shared contract validation.
 
-Stages 1–3 are complete. Stage 3's verified simulation datasets close Stage 2 final
-acceptance. Stage 4 is ready but has not been started. The execution records below
+Stages 1–4 are complete. Stage 3's verified simulation datasets close Stage 2 final
+acceptance. Stage 5 is ready but has not been started. The execution records below
 retain the earlier pending state and the final verification evidence.
 
 ## Pending tasks
@@ -54,7 +54,7 @@ retain the earlier pending state and the final verification evidence.
 - [x] Implement domain models, PostgreSQL schema, migrations, and fixed-seed authored-data generation/loading.
 - [x] Verify Stage 3's new simulation-derived dataset and Framing constraint case to close Stage 2 final acceptance.
 - [x] Implement the seven-station SimPy simulation, buffers, faults, repairs, calendars, scenarios, and uncertainty.
-- [ ] Implement deterministic historical analytics and candidate identification.
+- [x] Implement deterministic historical analytics and candidate identification.
 - [ ] Implement evidence ingestion, exact/lexical/vector retrieval, linking, and qualified cause assessment.
 - [ ] Implement exactly four agents and controlled LangGraph workflows.
 - [ ] Implement the read-only API and local web interface.
@@ -87,6 +87,8 @@ Repository inspection was completed before implementation. Those inspection comm
 
 - None for Stage 1.
 - None remaining for Stage 3 or Stage 2 final acceptance.
+- None remaining for Stage 4. Model-exclusive machine states remain an explicit
+  schema limitation, not fabricated measurements or a blocker to qualified analytics.
 - Resolved incident: PostgreSQL reported `DiskFull` (53100). The user freed disk space and restarted the stopped service. Database recovery, full dataset load/replay, authored-data preservation and final tests all passed afterward. The agent did not delete data/files to resolve the incident.
 
 ### Decisions
@@ -444,3 +446,113 @@ Final executed checks:
 The immutable report retains its initial `created: true`; the verified replay
 reported `created: false` in the terminal without replacing the report. Technical
 assumptions and limitations remain documented; calibration is not plant validation.
+
+## Stage 4 execution record — 2026-11-08
+
+**Status: Completed. Stage 5 is ready to begin and remains Not Started.**
+
+Read the attached Stage 4 request, AGENTS, original plan, roadmap, this status
+record, Stage 2/3 technical documents and README. Inspected actual schemas,
+configuration/session creation, generator/storage, simulation projection and
+source fields, existing tests, indexes, saved reports and all three persisted
+datasets before implementation. The analytics package previously contained only
+its initializer. No unrelated code was rewritten.
+
+### Implemented and verified
+
+- [x] Dataset-explicit typed scope/result contracts reusing shared scope/evidence types.
+- [x] Repeatable-read, PostgreSQL-enforced read-only public analysis interface.
+- [x] Bound, explicitly dataset-filtered aggregate queries; no raw-export loading or N+1 loop.
+- [x] Unioned shift calendars, explicit break subtraction, aware periods and UTC-hour handling.
+- [x] Admissions/completions, initial/final and average/max WIP, flow time, JPH and design gap.
+- [x] Station operations, active service, elapsed duration, exclusive states, coverage and queue metrics.
+- [x] Dated shifts, model JPH contributions, UTC-hour groups, partial/closed-period behavior.
+- [x] Transparent candidate scoring, individual indicators, support/conflicts and evidence strength.
+- [x] Sample/coverage thresholds, abstention, segment changes and dated-shift persistence counts.
+- [x] Aggregate references and bounded real source UUID/system/source-ID samples.
+- [x] Separately labeled persisted simulation reference and configuration-checked optional assessment.
+- [x] CLI, opt-in PostgreSQL tests, baseline/Framing comparison and documentation.
+
+### Actual results
+
+`sim-30day-baseline-v1` remains simulation-derived with its original UUID/hash:
+21,126 admissions, 21,096 completions, 30 final WIP and 450 scheduled hours give
+**46.88 JPH**, **13.12 JPH design gap**, and **5,904 design-gap bodies**. This gap
+is not station-specific recoverable output. SUV/Sedan completions are
+10,461/10,635, contributing 23.246667/23.633333 JPH. Mean flow time is
+3,771.414151 seconds and average WIP is 30.922847.
+
+**Hemming** is the overall historical leader and leads all 60 dated shifts.
+The two model proxy rankings lead with **Framing**, explicitly qualified because
+the schema cannot assign shared machine states exclusively to SUV/Sedan. They
+are not proof of model-specific line constraints. There are 24 pooled UTC-hour
+groups, with null JPH and no asserted leader in closed hours.
+
+Counts, scheduled hours, flow/WIP, station operations/state durations/queue
+integrals, individual dated shifts and UTC-hour buckets match the independently
+stored Stage 3 simulation metrics. The 46.88 retained single-run JPH is correctly
+distinct from the 46.255889 mean of 20 independent replications. Matching saved
+sensitivity evidence remains separate from observational scores.
+
+The existing `sim-framing-validation-v1` gives **1,716 completions**, **38.133333 JPH**
+and **Framing** first, although Hemming has the greatest faulted time. No simulation
+assumptions were changed and no long simulation experiment was rerun.
+
+### Validation commands and actual results
+
+Commands used the existing Python 3.12 `.venv` from the project root.
+
+| Executed command/check | Actual result |
+| --- | --- |
+| `.\.venv\Scripts\python.exe -m pytest tests/unit/test_analytics.py -q --tb=short` | **18 passed in 0.78 seconds**. |
+| `STAGE2_TEST_POSTGRES=1`, then `python -m pytest tests/integration/test_analytics.py -q --tb=short -x` | **7 passed in 85.11 seconds**. |
+| `STAGE2_TEST_POSTGRES=1`, then `python -m pytest -q --tb=short` | First full run **89 passed in 122.52 seconds**. |
+| Same full suite after final numeric/order and per-shift/hour assertions | **89 passed in 121.90 seconds**, exit 0. |
+| `.\.venv\Scripts\ruff.exe check .` | **Passed**, all checks passed. |
+| `.\.venv\Scripts\python.exe -m compileall -q src tests alembic` | **Passed**, exit 0. |
+| `.\.venv\Scripts\python.exe -m poetry check` | **Passed**, `All set!`. |
+| `.\.venv\Scripts\python.exe -m alembic check` | **Passed**, no new upgrade operations detected. |
+| `.\.venv\Scripts\python.exe -m alembic current` | **0002 (head)**, unchanged. |
+| Full baseline CLI with matching comparison/assessment artifacts | Passed; 21,096 completions, 450 hours, 46.88 JPH, Hemming, 86 segments. |
+| Query audit / measured full analysis | **15 statements**, SELECT/WITH/SET only; **33.326 seconds** while another test run was active. |
+| Post-suite read-only dataset audit | All three provenance labels/hashes unchanged; baseline counts 21,126 vehicles, 147,736 operations, 222,115 states, 373,589 sources. |
+| Post-suite temporary-schema audit | **Zero** `stage2_test_%` schemas remain. |
+| Original implementation-plan checksum | Still `AA250999107FDBFDC56F88DD6E91AC3DBCAAD41E01B46BB634EF71A9B7A6AD1D`. |
+
+The full-suite PowerShell sequence is:
+
+```powershell
+$env:STAGE2_TEST_POSTGRES = '1'
+.\.venv\Scripts\python.exe -m pytest -q --tb=short
+Remove-Item Env:STAGE2_TEST_POSTGRES
+```
+
+Early development checks exposed a slow interval nested loop, session-timezone
+dependence, and one-microsecond queue-max artifacts. These were corrected with
+materialized UTC-hour slices, transaction-local UTC, and a declared two-microsecond
+maximum-resolution threshold. Final passing results above supersede failed or
+cancelled exploratory checks. No separate type checker or peak-memory benchmark
+is claimed. The measured structured report was approximately 3.3 MiB; raw histories
+remain in PostgreSQL.
+
+### Files and decisions
+
+Created six analytics modules: `contracts.py`, `calendar.py`, `repository.py`,
+`candidates.py`, `service.py`, `cli.py`; two analytics test modules; and
+`docs/design/stage-4-analytics.md`. Updated README, roadmap and this status file.
+Local JSON reports under `data/processed/stage4/` are ignored by Git.
+
+No dependencies, migration, existing tests, shared domain contracts, simulation
+code, generators, database credentials, extension, or persisted datasets were
+changed. Temporary test fixtures exist only in rollback-only isolated schemas.
+No Git commit was created. No Stage 5–8 behavior was implemented.
+
+### Limits and handoff
+
+No blockers remain for Stage 4 acceptance. Scores are documented heuristics, not
+probabilities or proof of real-plant constraints. Model-exclusive state attribution
+is unsupported and null; model evidence is capped at moderate. Closed periods
+have no JPH, missing/overlapping states are explicit, and completed-visit means can
+have censoring/boundary bias. The design gap remains separate from simulated
+recoverable gain. Stage 5 may use the structured candidate scopes and source IDs
+for evidence retrieval; it has not been started.

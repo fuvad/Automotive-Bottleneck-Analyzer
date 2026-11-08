@@ -15,7 +15,7 @@ LangGraph will coordinate these four roles with validated routing. Numerical ana
 
 ## Technology
 
-Python 3.12+, Poetry, FastAPI, PostgreSQL, pgvector, SQLAlchemy 2.x, Alembic, Pydantic, SimPy, LangGraph, LangSmith, pytest, and Ruff. LLM and embedding providers are configurable. PostgreSQL stores structured records, document text/metadata, embeddings, evidence links, and audit records. The actual business functions have not been implemented yet.
+Python 3.12+, Poetry, FastAPI, PostgreSQL, pgvector, SQLAlchemy 2.x, Alembic, Pydantic, SimPy, LangGraph, LangSmith, pytest, and Ruff. LLM and embedding providers are configurable. PostgreSQL stores structured records, document text/metadata, embeddings, evidence links, and audit records. Synthetic data, simulation and deterministic historical analytics are implemented; retrieval, agents and the business interface follow in later stages.
 
 ## Project layout
 
@@ -66,8 +66,9 @@ poetry run python -m bottleneck_analyzer.data.generators.cli
 ```
 
 An identical rerun verifies the dataset without adding duplicate rows. Use a new
-`--name` for a fresh dataset. The current records are labeled authored fixtures;
-the primary plan's simulation-derived history remains a Stage 3 dependency.
+`--name` for a fresh dataset. This command produces authored fixtures. Stage 3
+also provides the separate persisted simulation-derived baseline and Framing case;
+analytics selects the dataset explicitly and preserves the authored fixture.
 
 ## Checks
 
@@ -89,9 +90,10 @@ migration, and authored-data generation/loading are available for Stage 3 to use
 Stage 3 implements the seven-station SimPy line, finite buffers, faults/repairs,
 calendars, uncertainty, calibration, scenarios and source projections. Its
 30-day baseline and Framing validation datasets are generated and persisted.
-Replay and original-fixture preservation checks passed, as did the final 64-test
-suite. Stages 1–3 and Stage 2 final acceptance are complete; Stage 4 is ready and
-has not been started.
+Replay and original-fixture preservation checks passed. Stage 4 adds read-only
+historical metrics, segmentation and qualified candidate ranking, verified against
+persisted simulation results. The final suite passed 89 tests. Stages 1–4 and
+Stage 2 final acceptance are complete; Stage 5 is ready and has not been started.
 See [implementation status](docs/implementation-status.md) for actual validation
 outcomes and the remaining acceptance evidence.
 
@@ -108,3 +110,25 @@ poetry run python -m bottleneck_analyzer.simulation.cli replicate --days 3 --rep
 Commands without `--config` use the initial synthetic assumptions. Use the saved
 calibrated configuration for the evaluated 46-JPH baseline. Simulation never runs
 on application startup. The authored `stage2-30day-v1` dataset is preserved.
+
+## Historical analytics commands
+
+Analytics reads PostgreSQL in a read-only snapshot; it does not run the simulation
+or ingest raw exports. It calculates Final Inspection JPH, design gap, station
+metrics, dated shifts, SUV/Sedan contributions, UTC-hour groups and qualified
+historical candidates with source references.
+
+```powershell
+poetry run python -m bottleneck_analyzer.analytics.cli --dataset sim-30day-baseline-v1
+poetry run python -m bottleneck_analyzer.analytics.cli --dataset sim-framing-validation-v1
+poetry run python -m bottleneck_analyzer.analytics.cli --dataset sim-30day-baseline-v1 --model SUV --utc-hour 4
+```
+
+Use `--report data/processed/stage4/example.json` to create a local structured
+report at a fresh path. Optional `--start`/`--end` must include timezone offsets.
+The baseline's retained single run gives 46.88 JPH and ranks Hemming first;
+this differs from the separate 20-replication mean of 46.255889 JPH. Model rankings
+use qualified service/queue proxies because shared machine states lack model
+attribution. Historical scores are not proof of a real-plant constraint.
+See [Stage 4 analytics](docs/design/stage-4-analytics.md) for definitions, scoring,
+filters, source references, limitations, experiment association and validation.

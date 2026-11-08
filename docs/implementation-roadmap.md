@@ -7,8 +7,8 @@ Status values used throughout this roadmap:
 - **Completed** — implementation and the relevant checks have been executed successfully.
 - **Blocked** — progress is stopped by a concrete dependency, environment issue, or unresolved requirement; the blocker is recorded.
 
-Stages 1–3 are **Completed**, including Stage 2 final acceptance verified through
-Stage 3 output. Stage 4 is **Not Started — ready to begin**; Stages 5–8 remain
+Stages 1–4 are **Completed**, including Stage 2 final acceptance verified through
+Stage 3 output. Stage 5 is **Not Started — ready to begin**; Stages 6–8 remain
 **Not Started**.
 
 Implementation completion and final acceptance are tracked separately when an
@@ -157,7 +157,17 @@ final acceptance, because its output supplies the remaining acceptance evidence.
 
 ### Stage 4 — Historical analytics and bottleneck candidate identification
 
-**Status:** Not started
+**Status:** Completed — persisted historical metrics, segmentation, evidence,
+candidate ranking and final 89-test regression suite verified on 2026-11-08.
+
+Implementation and definitions: [Stage 4 analytics](design/stage-4-analytics.md).
+The persisted baseline yields 21,096 completions / 450 scheduled hours = 46.88 JPH,
+13.12 JPH design gap and Hemming as the observational leader. All 60 dated shifts
+lead with Hemming; qualified model proxy rankings differ and are explicitly
+limited. The separate Framing dataset ranks Framing despite Hemming having the
+most faulted time. Metrics match stored Stage 3 references, including individual
+dated shifts and UTC-hour buckets. No calibration was rerun; Stage 3 already
+provides it. Existing datasets, schema, dependencies and simulation are unchanged.
 
 **Objective:** Compute deterministic historical metrics and rank constraint candidates while keeping historical associations separate from simulation-based sensitivity conclusions.
 
@@ -165,8 +175,12 @@ final acceptance, because its output supplies the remaining acceptance evidence.
 
 **Components and files:**
 
-- Existing: `src/bottleneck_analyzer/analytics/__init__.py`.
-- Proposed: metrics, candidate-ranking, denominator/calendar, and validation modules under `src/bottleneck_analyzer/analytics/`; tests under `tests/unit/` and `tests/integration/`.
+- Reused: `analytics/__init__.py`, shared domain contracts, existing PostgreSQL
+  mappings/configuration/session factory and isolated-schema test infrastructure.
+- Created under `src/bottleneck_analyzer/analytics/`: `contracts.py`, `calendar.py`,
+  `repository.py`, `candidates.py`, `service.py`, and `cli.py`.
+- Created `tests/unit/test_analytics.py`, `tests/integration/test_analytics.py`,
+  and `docs/design/stage-4-analytics.md`; README and tracking documents updated.
 
 **Important implementation decisions:**
 
@@ -444,8 +458,8 @@ When blocked, record the specific missing dependency, attempted checks, impact o
 
 ### Measurement, retrieval, and validation
 
-- [ ] JPH is Final Inspection completions divided by scheduled production hours.
-- [ ] Unplanned downtime remains in scheduled hours; planned exclusions are explicit; design-capacity gap is separate from recoverable counterfactual loss.
+- [x] JPH is Final Inspection completions divided by scheduled production hours.
+- [x] Unplanned downtime remains in scheduled hours; planned exclusions are explicit; design-capacity gap is separate from recoverable counterfactual loss.
 - [ ] Processing, inter-arrival, repair, downtime, blocked, and starved time remain distinct; units, boundaries, denominators, missing data, and overlaps are checked.
 - [ ] Retrieval uses direct links first, then station/time filters, PostgreSQL full-text search, and pgvector similarity; results merge and deduplicate.
 - [ ] Evidence includes source IDs, timestamps, stations, incident links, document versions, and direct/inferred relationship labels.
