@@ -4,7 +4,7 @@
 
 - **Project name:** Automotive Bottleneck Analyzer
 - **Overall status:** In Progress
-- **Current stage:** Stage 5 — Knowledge Retrieval and Evidence Linking (Not Started — ready to begin)
+- **Current stage:** Stage 6 — Four-Agent Implementation and LangGraph Orchestration (Not Started — ready to begin)
 - **Stage 2:** Implementation and Final Acceptance Completed
 - **Stage 3:** Completed
 - **Last updated:** 2026-11-08
@@ -18,8 +18,8 @@
 | Stage 2 — Domain Models, Database Schema, and Synthetic Data Generation | Completed | Final acceptance closed: 30-day simulation dataset loaded/replayed, Framing case verified, authored fixture unchanged. |
 | Stage 3 — Seven-Station SimPy Discrete-Event Simulation | Completed | Simulation, calibration, uncertainty, both interventions, persistence/replay and final 64-test suite verified. |
 | Stage 4 — Historical Analytics and Bottleneck Candidate Identification | Completed | Read-only metrics, segmentation, source references, candidates, persisted reference comparisons and final 89-test suite passed. |
-| Stage 5 — Knowledge Retrieval and Evidence Linking | Not Started | Ready to begin; Stages 1–4 are verified. |
-| Stage 6 — Four-Agent Implementation and LangGraph Orchestration | Not Started | Waiting for Stages 1–5. |
+| Stage 5 — Knowledge Retrieval and Evidence Linking | Completed | Live semantic acceptance closed: 2,544 vectors, 17/17 live checks, source-fact preservation and final 125-test suite passed. |
+| Stage 6 — Four-Agent Implementation and LangGraph Orchestration | Not Started | Ready to begin; Stages 1–5 are verified. |
 | Stage 7 — API and Local User Interface | Not Started | Waiting for Stage 6. |
 | Stage 8 — Testing, Validation, Documentation, and Presentation | Not Started | Waiting for the implemented vertical workflow. |
 
@@ -33,8 +33,8 @@
 - Added `/health` and `/health/database` endpoints with startup/shutdown logging and tracing-disabled operation.
 - Added isolated foundation tests for settings, health endpoints, missing database configuration, and shared contract validation.
 
-Stages 1–4 are complete. Stage 3's verified simulation datasets close Stage 2 final
-acceptance. Stage 5 is ready but has not been started. The execution records below
+Stages 1–5 are complete. Stage 3's verified simulation datasets close Stage 2 final
+acceptance. Stage 6 is ready but has not been started. The execution records below
 retain the earlier pending state and the final verification evidence.
 
 ## Pending tasks
@@ -55,7 +55,7 @@ retain the earlier pending state and the final verification evidence.
 - [x] Verify Stage 3's new simulation-derived dataset and Framing constraint case to close Stage 2 final acceptance.
 - [x] Implement the seven-station SimPy simulation, buffers, faults, repairs, calendars, scenarios, and uncertainty.
 - [x] Implement deterministic historical analytics and candidate identification.
-- [ ] Implement evidence ingestion, exact/lexical/vector retrieval, linking, and qualified cause assessment.
+- [x] Implement evidence ingestion, exact/lexical/vector retrieval, linking, and qualified cause assessment.
 - [ ] Implement exactly four agents and controlled LangGraph workflows.
 - [ ] Implement the read-only API and local web interface.
 - [ ] Complete validation, documentation, packaging, presentation, and rehearsal.
@@ -89,6 +89,9 @@ Repository inspection was completed before implementation. Those inspection comm
 - None remaining for Stage 3 or Stage 2 final acceptance.
 - None remaining for Stage 4. Model-exclusive machine states remain an explicit
   schema limitation, not fabricated measurements or a blocker to qualified analytics.
+- None for Stage 5. The configured provider, live embeddings and 17 synthetic
+  semantic/hybrid acceptance cases are verified; general real-plant relevance
+  remains outside the scope of these checks.
 - Resolved incident: PostgreSQL reported `DiskFull` (53100). The user freed disk space and restarted the stopped service. Database recovery, full dataset load/replay, authored-data preservation and final tests all passed afterward. The agent did not delete data/files to resolve the incident.
 
 ### Decisions
@@ -556,3 +559,228 @@ have no JPH, missing/overlapping states are explicit, and completed-visit means 
 have censoring/boundary bias. The design gap remains separate from simulated
 recoverable gain. Stage 5 may use the structured candidate scopes and source IDs
 for evidence retrieval; it has not been started.
+
+## Stage 5 execution record — 2026-11-08
+
+This initial implementation record preceded live semantic acceptance. The latter
+was pending at this point and is closed in the follow-up record below.
+
+**Status: Completed for implementation and local acceptance. Stage 6 remains
+Not Started and is ready to begin.**
+
+Inspected the attached request, AGENTS, original plan/roadmap/status, Stage 2–4
+technical documents, actual mappings/indexes/source projections/links, typed
+analytics contracts, settings, test fixtures and the three existing datasets.
+The retrieval package previously had only an initializer. Official OpenAI
+documentation was checked for the optional real embedding adapter.
+
+### Implemented and verified
+
+- [x] Explicit dataset/station/aware-period request, bounded results and validated exact UUIDs.
+- [x] Read-only snapshot interface, fixed bound SQL, dataset/station/time/system/shift/hour filters.
+- [x] Exact incident/work-order/source resolution before FTS/vector searches; FKs work without graph rows.
+- [x] PostgreSQL English full-text search through the existing generated vector and GIN index.
+- [x] Actual pgvector cosine search with model identity and dimension guards, verified with isolated numeric fixtures.
+- [x] Missing vectors/configuration/provider failures preserve exact/lexical results and disclose unavailable semantics.
+- [x] Exact-priority rank fusion and identity-based deduplication preserving every matching method and original link type.
+- [x] Original source text/JSON/IDs/path/timestamp/station/incident/version metadata and explicit rendering basis.
+- [x] Whole short records, existing SOP sections and stable virtual fallback chunks; no duplicated source rows.
+- [x] Explicit null-only vector enrichment with validated metadata, replay skipping and atomic failure behavior.
+- [x] One-way Stage 4 adapter, candidate indicator/source references and scope validation; no recalculation.
+- [x] Four qualified assessment labels, abstention, visible contradictions, bad-sensor exclusions and untrusted-text handling.
+- [x] CLI, unit/integration tests, full regression, technical documentation and preservation audits.
+
+### Actual baseline verification
+
+The live Stage 4-to-Stage 5 check selected `sim-30day-baseline-v1` and Hemming.
+Analytics remained **46.88 JPH**, **Hemming** leading. Retrieval fetched **6 exact**
+and **60 bounded lexical** matches, returned **20** records and disclosed truncation.
+Source systems included Andon, CMMS, SCADA and historian. With the copied candidate
+fault-occupancy indicator and linked incident records, the assessment was a
+qualified **supported_hypothesis** about equipment interruptions. It did not claim
+a recorded component cause, line-level causal loss or recoverable throughput gain.
+
+Measured retrieval (excluding analytics) took **1.936 seconds**, with **16 SQL
+statements including savepoint control** during another test run. Statements were
+SELECT/WITH/SET/SAVEPOINT/RELEASE only. The initial linked report was 43,680 bytes
+before the final original-text provenance fields were added. These are measured
+observations, not guarantees. Local reports/audits are under `data/processed/stage5/`.
+
+Actual development embedding provider/model/key remain unconfigured and all
+stored embedding/model pairs remain null. Semantic retrieval correctly reports
+unavailability. The OpenAI HTTP contract was tested offline and real pgvector
+storage/search in rollback-only schemas used explicitly synthetic numeric geometry
+fixtures; no live external API call or semantic-quality evaluation is claimed.
+The documented configurable setup is OpenAI `text-embedding-3-small`, 1,536 dimensions.
+
+### Validation commands and actual results
+
+| Executed command/check using existing `.venv` | Actual result |
+| --- | --- |
+| `python -m pytest tests/unit/test_retrieval.py -q --tb=short` | **24 passed in 0.13 seconds**. |
+| `STAGE2_TEST_POSTGRES=1`, then `python -m pytest tests/integration/test_retrieval.py -q --tb=short -x` | **10 passed in 13.45 seconds**. |
+| Final focused retrieval unit + integration suite | **34 passed in 13.67 seconds**. |
+| Final complete suite, `STAGE2_TEST_POSTGRES=1`, `python -m pytest -q --tb=short` | **123 passed in 103.47 seconds**, exit 0. |
+| `ruff check .` | **Passed**, all checks passed. |
+| `python -m compileall -q src tests alembic` | **Passed**, exit 0. |
+| `python -m poetry check` | **Passed**, `All set!`. |
+| `python -m alembic check` | **Passed**, no new upgrade operations detected. |
+| `python -m alembic current` | **0002 (head)**, unchanged; no migration created. |
+| Live read-only analytics-to-retrieval check | **Passed**, baseline metrics unchanged and qualified linked evidence returned. |
+| Public-table preservation audit | All **21 tables** matched row counts/content digests; source-record count **555,714** unchanged. |
+| Saved Stage 3 reports audit | Every saved JSON report SHA-256 matched before/after verification. |
+| Post-suite embedding/schema audit | **0** populated embedding/model pairs; **0** leftover `stage2_test_%` schemas. |
+| Original plan checksum and protected-code diff | Plan checksum unchanged (`AA250999107FDBFDC56F88DD6E91AC3DBCAAD41E01B46BB634EF71A9B7A6AD1D`); analytics, simulation, data, DB/domain, migrations and dependency files unchanged. |
+
+The PowerShell full-suite sequence was:
+
+```powershell
+$env:STAGE2_TEST_POSTGRES = '1'
+.\.venv\Scripts\python.exe -m pytest -q --tb=short
+Remove-Item Env:STAGE2_TEST_POSTGRES
+```
+
+Early checks found an untyped nullable SQL parameter and a blank-section fallback
+edge case; both were fixed before final verification. Failed exploratory outputs
+are superseded by the passing results above. No type checker is configured.
+
+### Files, configuration and safety
+
+Created eight modules under `retrieval/`: `contracts.py`, `repository.py`,
+`chunking.py`, `embeddings.py`, `indexing.py`, `evidence.py`, `service.py`, `cli.py`;
+`tests/unit/test_retrieval.py`, `tests/integration/test_retrieval.py`; and
+`docs/design/stage-5-retrieval.md`. Modified only typed embedding settings in
+`core/config.py`, `.env.example`, README, roadmap and this status record.
+
+No files were deleted. No dependencies or migrations were added. The actual `.env`,
+credentials, database/extension, existing datasets, source fields, simulation
+assumptions, Stage 4 contracts/calculations and prior tests were preserved.
+Embedding enrichment ran only in isolated rollback-only schemas. No Git commit
+was created and no Stage 6 agent, workflow, business API or UI was implemented.
+
+### Limits and handoff
+
+No Stage 5 implementation/local-acceptance blocker remains. Live embedding API
+behavior and retrieval quality remain unverified without external configuration;
+current development semantic retrieval is unavailable rather than simulated.
+SOPs owned by the authored dataset need an explicit request for that dataset;
+baseline retrieval does not silently cross that boundary. Graph expansion is
+bounded/one-hop, fallback scores are source-level, and shared evidence has no
+model-exclusive attribution. Evidence labels are conservative deterministic
+assessments; text is never causal proof or an instruction to act.
+
+Stage 6 can consume validated analytics, simulation and retrieval interfaces.
+Its exactly-four-agent orchestration remains **Not Started**.
+
+## Stage 5 live semantic acceptance follow-up — 2026-11-08
+
+**Status: Completed, including live provider/indexing/relevance acceptance.**
+
+The user configured `.env`, successfully tested `text-embedding-3-small` at 1,536
+dimensions, and indexed 20 Hemming records. They then explicitly authorized
+completion of the remaining indexing, quality tests, regression checks and tracking.
+This authorization permits derived embedding enrichment while preserving source
+facts; it does not permit changing production history or starting Stage 6.
+
+### Live indexing and preservation
+
+| Dataset | Eligible/populated text records | Existing / newly indexed |
+| --- | ---: | ---: |
+| `sim-30day-baseline-v1` | 1,644 | 20 / 1,624 |
+| `sim-framing-validation-v1` | 147 | 0 / 147 |
+| `stage2-30day-v1` | 753, including 14 SOP sections | 0 / 753 |
+| Total | **2,544** | **20 / 2,524** |
+
+All three datasets have embeddings for relevant text across all seven stations.
+The identity is `openai:text-embedding-3-small:1536:source-v1`; every populated vector
+has dimension 1,536. Empty/structured source rows, stationless irrelevant notes and
+sectioned SOP parents were not embedded. This avoids vectorizing hundreds of
+thousands of numerical production/state rows that have no searchable prose.
+
+Batching/caching reused genuine embeddings of identical text under the same model.
+Only **22 new texts in 7 provider requests** were needed to enrich the 2,524 rows.
+Compatible existing vectors were preserved. Indexing uses batches of at most 50
+rows, with no dataset recreation, source duplication or automatic startup work.
+A live replay skipped 50/50 indexed sources, generated 0 vectors and made **0 API requests**.
+
+The index runner's before/after audit matched row counts and source-fact content
+digests for all 21 business tables, excluding only the two explicitly authorized
+derived fields. Original source IDs/text/JSON, paths, timestamps, relationships,
+production records, simulation runs/configuration and all dataset hashes remain
+unchanged. Saved Stage 3 JSON report SHA-256 values also match.
+
+The first sandboxed request failed before its first batch committed. Retrying with
+network access succeeded. The completed run is `live-index-v2.json`; its elapsed
+time was **86.60 seconds**, including the two full source-fact audits. The failed
+attempt is not counted as successful indexing evidence. No credential was printed
+or placed in documentation.
+
+### Relevance measurement and cutoff
+
+The original 0.4 maximum cosine distance required similarity ≥0.6. Eight labeled
+calibration probes found legitimate broad repair at **0.5363**, electrical repair
+at **0.5889**, and SOP approval at **0.5982**; those were being excluded. Unrelated
+food/travel probes scored only **0.0473/0.0060**. Based on that separation, the
+default maximum distance is now **0.5** (minimum similarity 0.5).
+
+A separate held-out fixture and boundary/hybrid checks passed **17/17** live cases:
+
+- Robot repair paraphrase **0.6428** and electrical paraphrase **0.5399** return
+  records with the expected fault categories.
+- Framing-dataset retrieval returns the correct independent dataset/station.
+- SOP reporting **0.7307** and approval **0.5804** return the expected section
+  numbers with document IDs/versions.
+- Two held-out unrelated recipe/currency questions return zero records.
+- Every baseline station is explicitly tested and returns only its own records.
+- The user's original broad repair question now returns relevant records (**0.5363**).
+- Hybrid lookup preserves direct exact priority and deduplicates the same source
+  across exact/lexical/semantic methods while retaining all methods.
+- End-exclusive source-time filtering and foreign-dataset identifier rejection pass.
+
+The 17 cases used **2 provider requests** through the operation-local cache and
+took **21.19 seconds**. These are bounded synthetic acceptance examples, not proof
+of general retrieval accuracy or plant causation. Query/source text remains
+untrusted, and the existing conservative evidence assessments remain in force.
+
+### Compatibility fixes and tests
+
+The source replay verifier previously compared nullable embedding fields as if
+they were original source facts. Real enrichment would therefore break normal
+dataset replay. It now excludes only `embedding`/`embedding_model` from source-fact
+comparison, retaining strict comparison of every other generated field. A new
+integration test proves that enriched replay succeeds and changed original text
+still fails. No prior tests were weakened or removed.
+
+Indexing now batches unique texts before updates; `CachedEmbedder` provides bounded
+operation-local reuse of real vectors for one identity. All generation/validation,
+including fallback pooling, completes before the atomic update savepoint.
+
+| Executed validation | Actual result |
+| --- | --- |
+| Focused retrieval unit/integration tests, opt-in PostgreSQL | **36 passed in 17.55 seconds** (25 unit, 11 integration). |
+| Live `stage5_acceptance.py index` | **Passed**, 2,524 new / 2,544 total vectors; preservation audit passed. |
+| Live `stage5_acceptance.py probe --cutoff 2` | **Passed**, eight labeled distance probes recorded; cutoff 2 used only for measurement. |
+| Live `stage5_acceptance.py validate` | **17/17 passed**, exit 0. |
+| Live 50-source indexing replay | **0 indexed, 50 skipped, 0 provider requests**. |
+| Full pytest suite with `STAGE2_TEST_POSTGRES=1` | **125 passed in 140.14 seconds**, exit 0. |
+| Ruff | **Passed**, all checks passed. |
+| Compilation, `compileall -q src tests alembic scripts` | **Passed**, exit 0. |
+| Poetry module check | **Passed**, `All set!`. |
+| Alembic consistency/current | **Passed**, no new upgrade operations; **0002 (head)**. |
+| Post-enrichment Stage 4 baseline analysis | **46.88 JPH**, 21,096 completions, 450 scheduled hours, Hemming leading, unchanged. |
+| Final database audit | All three dataset hashes unchanged; **0** leftover test schemas. |
+
+### Files and artifacts
+
+Created `scripts/stage5_acceptance.py` for explicit resumable enrichment,
+calibration and acceptance; `tests/fixtures/live-retrieval-quality.json` for
+held-out examples. Updated retrieval batching/cache/default cutoff and tests,
+`data/storage.py` replay compatibility, README, Stage 2/5 technical documents,
+roadmap and this status record. No migration, dependency, simulation, analytics,
+domain contract, agent, API or UI change was made.
+
+Ignored artifacts under `data/processed/stage5/` include `live-index-v2.json` and
+its before audit, `live-calibration-v1.json`, `live-validation-v1.json`, and
+`live-post-index-analytics.json`. Reports require fresh paths. Original plan,
+four-agent architecture and two-day schedule remain unchanged. No Git commit
+was created. Stage 5 live acceptance is now closed; **Stage 6 remains Not Started**.

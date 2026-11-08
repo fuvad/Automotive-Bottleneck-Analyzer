@@ -15,7 +15,7 @@ LangGraph will coordinate these four roles with validated routing. Numerical ana
 
 ## Technology
 
-Python 3.12+, Poetry, FastAPI, PostgreSQL, pgvector, SQLAlchemy 2.x, Alembic, Pydantic, SimPy, LangGraph, LangSmith, pytest, and Ruff. LLM and embedding providers are configurable. PostgreSQL stores structured records, document text/metadata, embeddings, evidence links, and audit records. Synthetic data, simulation and deterministic historical analytics are implemented; retrieval, agents and the business interface follow in later stages.
+Python 3.12+, Poetry, FastAPI, PostgreSQL, pgvector, SQLAlchemy 2.x, Alembic, Pydantic, SimPy, LangGraph, LangSmith, pytest, and Ruff. LLM and embedding providers are configurable. PostgreSQL stores structured records, document text/metadata, embeddings, evidence links, and audit records. Synthetic data, simulation, historical analytics and evidence retrieval are implemented; agents and the business interface follow in later stages.
 
 ## Project layout
 
@@ -92,8 +92,11 @@ calendars, uncertainty, calibration, scenarios and source projections. Its
 30-day baseline and Framing validation datasets are generated and persisted.
 Replay and original-fixture preservation checks passed. Stage 4 adds read-only
 historical metrics, segmentation and qualified candidate ranking, verified against
-persisted simulation results. The final suite passed 89 tests. Stages 1–4 and
-Stage 2 final acceptance are complete; Stage 5 is ready and has not been started.
+persisted simulation results. Stage 5 adds bounded evidence retrieval, optional
+compatible pgvector search, provenance and qualified assessments. The final suite
+passed 125 tests. Stages 1–5 and Stage 2 final acceptance are complete; Stage 6 is
+ready and has not been started. Live semantic acceptance passed 17/17 checks,
+using 2,544 indexed text records across the three existing datasets.
 See [implementation status](docs/implementation-status.md) for actual validation
 outcomes and the remaining acceptance evidence.
 
@@ -132,3 +135,39 @@ use qualified service/queue proxies because shared machine states lack model
 attribution. Historical scores are not proof of a real-plant constraint.
 See [Stage 4 analytics](docs/design/stage-4-analytics.md) for definitions, scoring,
 filters, source references, limitations, experiment association and validation.
+
+## Evidence retrieval commands
+
+Retrieval uses exact incident/work-order links first, then PostgreSQL full-text
+and optional pgvector search within the explicitly selected dataset and stations.
+It retains direct/inferred links, source/version metadata, candidate indicators,
+quality warnings and qualified evidence labels. Source text remains untrusted data.
+
+```powershell
+poetry run python -m bottleneck_analyzer.retrieval.cli --dataset sim-30day-baseline-v1 --station Hemming --start 2026-09-01T00:00:00Z --end 2026-10-01T00:00:00Z --query "robot repair"
+```
+
+Use `--incident <uuid>`, `--work-order <uuid>`, or an optional fresh `--report` path.
+The Python `request_from_analytics()` adapter links the existing Stage 4 result
+without recalculating metrics. Simulation SOPs belong to a separately referenced
+authored dataset; retrieval never silently mixes them into baseline evidence.
+
+Optional embedding settings include provider/model/key, dimensions, HTTPS base
+URL and timeout. The supported OpenAI setup uses `text-embedding-3-small` with
+1,536 dimensions. Missing configuration/vectors or provider failure leaves exact
+and lexical retrieval available, with explicit partial-result diagnostics.
+The user-authorized live enrichment populated 2,544 relevant records, including
+14 SOP sections. Indexing never runs during retrieval or application startup.
+The default cosine-distance cutoff is 0.5, validated on the documented synthetic
+acceptance examples. An explicit, resumable indexing and validation utility is
+available:
+
+```powershell
+poetry run python scripts/stage5_acceptance.py validate --report data/processed/stage5/new-validation.json
+```
+
+Use `index` instead of `validate` only when intentionally enriching newly eligible
+records. Existing compatible vectors are skipped, and original source facts remain
+strictly checked on dataset replay. Reports require fresh paths.
+See [Stage 5 retrieval](docs/design/stage-5-retrieval.md) for interfaces, indexing,
+configuration, safeguards, tests and remaining limits.

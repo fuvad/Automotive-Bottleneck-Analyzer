@@ -7,8 +7,8 @@ Status values used throughout this roadmap:
 - **Completed** — implementation and the relevant checks have been executed successfully.
 - **Blocked** — progress is stopped by a concrete dependency, environment issue, or unresolved requirement; the blocker is recorded.
 
-Stages 1–4 are **Completed**, including Stage 2 final acceptance verified through
-Stage 3 output. Stage 5 is **Not Started — ready to begin**; Stages 6–8 remain
+Stages 1–5 are **Completed**, including Stage 2 final acceptance verified through
+Stage 3 output. Stage 6 is **Not Started — ready to begin**; Stages 7–8 remain
 **Not Started**.
 
 Implementation completion and final acceptance are tracked separately when an
@@ -204,7 +204,18 @@ provides it. Existing datasets, schema, dependencies and simulation are unchange
 
 ### Stage 5 — Knowledge retrieval and evidence linking
 
-**Status:** Not started
+**Status:** Completed — implementation and live semantic acceptance verified;
+**17/17 live checks** and final suite **125 passed** on 2026-11-08.
+
+See [Stage 5 retrieval](design/stage-5-retrieval.md). Public retrieval is read-only.
+User-authorized enrichment populated 2,544 relevant text records across all seven
+stations in the three existing datasets, including 14 SOP sections. All 21 tables'
+source facts (excluding only derived embedding fields), dataset hashes and saved
+Stage 3 reports matched preservation checks. The configured OpenAI model and live
+semantic/hybrid behavior were verified. The distance cutoff was measured and
+adjusted to 0.5, with separate held-out positives/negatives. This is synthetic
+acceptance evidence, not a general quality guarantee. No migration/dependency was
+added; production history, simulation assumptions and analytics are unchanged.
 
 **Objective:** Retrieve relevant maintenance, Andon, shift-note, and SOP evidence with exact links, metadata filters, lexical search, vector similarity, deduplication, and qualified interpretation.
 
@@ -212,8 +223,12 @@ provides it. Existing datasets, schema, dependencies and simulation are unchange
 
 **Components and files:**
 
-- Existing: `src/bottleneck_analyzer/retrieval/__init__.py`.
-- Proposed: ingestion/chunking, embedding, exact lookup, full-text/vector retrieval, merge/deduplication, and evidence-label modules under `src/bottleneck_analyzer/retrieval/`; pgvector schema support in `db/models/`; retrieval fixtures/tests under `tests/`.
+- Reused: retrieval initializer, existing PostgreSQL FTS/pgvector schema, source
+  relationships, station vocabulary, Stage 4 result contracts and isolated tests.
+- Created under `src/bottleneck_analyzer/retrieval/`: `contracts.py`, `repository.py`,
+  `chunking.py`, `embeddings.py`, `indexing.py`, `evidence.py`, `service.py`, `cli.py`.
+- Created retrieval unit/integration tests and `docs/design/stage-5-retrieval.md`;
+  extended typed embedding settings/template and updated README/tracking documents.
 
 **Important implementation decisions:**
 
@@ -461,8 +476,8 @@ When blocked, record the specific missing dependency, attempted checks, impact o
 - [x] JPH is Final Inspection completions divided by scheduled production hours.
 - [x] Unplanned downtime remains in scheduled hours; planned exclusions are explicit; design-capacity gap is separate from recoverable counterfactual loss.
 - [ ] Processing, inter-arrival, repair, downtime, blocked, and starved time remain distinct; units, boundaries, denominators, missing data, and overlaps are checked.
-- [ ] Retrieval uses direct links first, then station/time filters, PostgreSQL full-text search, and pgvector similarity; results merge and deduplicate.
-- [ ] Evidence includes source IDs, timestamps, stations, incident links, document versions, and direct/inferred relationship labels.
+- [x] Retrieval uses direct links first, then station/time filters, PostgreSQL full-text search, and pgvector similarity; results merge and deduplicate.
+- [x] Evidence includes source IDs, timestamps, stations, incident links, document versions, and direct/inferred relationship labels.
 - [ ] Tests cover manual JPH/design gap, conservation, buffers, faults/repairs, shifts, both 30% methods, unchanged non-target parameters, seeds, retrieval relevance/traceability, misleading notes, missing sensors, planner scope, clarification, and unsupported requests.
 - [ ] Human review is shown before acting on recommendations; no production control or automatic work-order creation exists.
 

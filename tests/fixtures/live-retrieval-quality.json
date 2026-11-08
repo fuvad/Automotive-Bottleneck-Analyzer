@@ -1,0 +1,13 @@
+{
+  "description": "Held-out synthetic-corpus acceptance questions, distinct from cutoff calibration questions. No claim of real-plant or general semantic quality.",
+  "cases": [
+    {"name":"robot_paraphrase_holdout","dataset":"sim-30day-baseline-v1","station":"Hemming","query":"Robot stopped; technicians performed a repair","expected_text":"robot_fault"},
+    {"name":"electrical_holdout","dataset":"sim-30day-baseline-v1","station":"Hemming","query":"Electrical faults stopped equipment and needed repair","expected_text":"electrical_fault"},
+    {"name":"framing_dataset_holdout","dataset":"sim-framing-validation-v1","station":"Framing","query":"Robot stopped; technicians performed a repair","expected_text":"robot_fault"},
+    {"name":"sop_reporting_holdout","dataset":"stage2-30day-v1","station":"Hemming","query":"How should operators document an alarm and notify maintenance?","systems":["SOP"],"expected_section":1},
+    {"name":"sop_approval_holdout","dataset":"stage2-30day-v1","station":"Hemming","query":"Which people are permitted to approve changes to machines?","systems":["SOP"],"expected_section":2},
+    {"name":"irrelevant_recipe_holdout","dataset":"sim-30day-baseline-v1","station":"Hemming","query":"How should I cook spaghetti with tomato sauce?","expected_empty":true},
+    {"name":"irrelevant_currency_holdout","dataset":"sim-30day-baseline-v1","station":"Hemming","query":"What is the exchange rate between euros and yen?","expected_empty":true},
+    {"name":"original_user_query_regression","dataset":"sim-30day-baseline-v1","station":"Hemming","query":"Equipment stopped and required maintenance repairs","minimum_hits":1}
+  ]
+}

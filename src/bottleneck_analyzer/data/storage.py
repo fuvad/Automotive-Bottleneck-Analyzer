@@ -90,5 +90,12 @@ def verify_persisted_content(connection: Connection, history: EventHistory) -> N
         )
         for stored in connection.execute(statement).mappings():
             original = expected.get(stored["id"])
-            if original is None or any(stored[key] != value for key, value in original.items()):
+            # Embeddings are derived retrieval enrichment, not immutable source facts.
+            # Every original source field and all other tables remain strictly checked.
+            compared = {
+                key: value
+                for key, value in (original or {}).items()
+                if not (name == "source_record" and key in {"embedding", "embedding_model"})
+            }
+            if original is None or any(stored[key] != value for key, value in compared.items()):
                 raise DatasetValidationError(f"Persisted content differs from fixture: {name}")

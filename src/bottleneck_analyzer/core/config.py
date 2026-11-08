@@ -1,6 +1,6 @@
 """Read and validate application settings from the environment."""
 
-from pydantic import SecretStr, field_validator
+from pydantic import Field, SecretStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -18,6 +18,9 @@ class AppSettings(BaseSettings):
     embedding_provider: str = ""
     embedding_model: str = ""
     embedding_api_key: SecretStr | None = None
+    embedding_dimensions: int = Field(default=1536, gt=0, le=16000)
+    embedding_base_url: str = "https://api.openai.com/v1"
+    embedding_timeout_seconds: int = Field(default=10, gt=0, le=120)
     langsmith_tracing: bool = False
     langsmith_api_key: SecretStr | None = None
     langsmith_project: str = "automotive-bottleneck-analyzer"

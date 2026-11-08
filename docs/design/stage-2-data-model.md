@@ -128,6 +128,13 @@ Configuration supports 1–366 days and 2–400 vehicles per shift. The upper vo
 bound keeps the authored single-station booking slots nonoverlapping; simulation
 release behavior will be defined in Stage 3.
 
+Stage 5 subsequently enriches only `source_record.embedding` and
+`source_record.embedding_model`. Replay verification excludes these derived fields
+while strictly comparing original text/JSON, identifiers, timestamps, relationships
+and all other generated fields. The dataset hash remains the original generated
+history fingerprint, not a checksum of a later embedding cache. Enrichment replay
+and original-source tamper rejection are covered by a dedicated integration test.
+
 ## Tests and database safety
 
 ```powershell
